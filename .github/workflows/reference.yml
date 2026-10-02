@@ -1,0 +1,36 @@
+name: Референс
+
+# Скачивает ролик-референс по ссылке из refs/<имя>.url и раскладывает для разбора:
+# видео, кадры каждые 0,5 с, моменты склеек.
+on:
+  push:
+    paths: ['refs/*.url']
+
+permissions:
+  contents: write
+
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg >/dev/null && pip install -q yt-dlp
+      - name: Скачивание и разбор
+        run: |
+          for u in refs/*.url; do
+            n="$(basename "$u" .url)"; d="refs/$n"
+            [ -f "$d/video.mp4" ] && continue
+            mkdir -p "$d"
+            yt-dlp -q -f "bv*+ba/b" --merge-output-format mp4 -o "$d/video.mp4" "$(cat "$u")" 2> "$d/error.txt" || { echo "не скачалось"; cat "$d/error.txt"; continue; }
+            rm -f "$d/error.txt"
+            mkdir -p "$d/frames"
+            ffmpeg -v error -i "$d/video.mp4" -vf "fps=2,scale=360:-2" "$d/frames/%03d.jpg"
+            ffmpeg -i "$d/video.mp4" -vf "select='gt(scene,0.25)',showinfo" -f null - 2>&1 | grep -o 'pts_time:[0-9.]*' | cut -d: -f2 > "$d/cuts.txt" || true
+            ffprobe -v error -show_entries format=duration:stream=width,height -of compact "$d/video.mp4" > "$d/info.txt"
+          done
+      - name: Коммит
+        run: |
+          git config user.name "github-actions"; git config user.email "actions@github.com"
+          git add refs; git diff --cached --quiet && exit 0
+          git commit -m "Референс для разбора"
+          for i in 1 2 3 4; do git pull --rebase -q && git push && break; sleep $((i*5)); done
