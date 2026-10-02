@@ -174,6 +174,15 @@ function detectCta(words) {
         return {keyword: kw, spoken: true, wordIndex: s};
       }
     }
+    // «Напишите в комментариях КОНТРОЛЬ» — без слова «слово»
+    if (/^комментар/.test(norm(words[i].text)) && words[i + 1] && /напиш|пиш/.test(words.slice(Math.max(0, i - 3), i).map((w) => norm(w.text)).join(' '))) {
+      let k = i + 1;
+      if (/^слов/.test(norm(words[k].text)) && words[k + 1]) k++;
+      const kw = words[k].text.replace(/[«»"'.,!?…:;—–-]/g, '').toUpperCase();
+      let s = i;
+      while (s > 0 && !/[.!?…]$/.test(words[s - 1].text) && words[i].start - words[s - 1].start < 6) s--;
+      return {keyword: kw, spoken: true, wordIndex: s};
+    }
   }
   return null;
 }
@@ -294,7 +303,21 @@ const fmt = (t) => {
   return `${m}:${s.toFixed(1).padStart(4, '0')}`;
 };
 
+function darkTable(sb) {
+  const say = (a, b) => sb.words.filter((w) => w.start >= a - 0.05 && w.start < b - 0.05).map((w) => w.text).join(' ');
+  const rows = sb.scenes.map((s) => {
+    const ex = (sb.overlays ?? [])
+      .filter((o) => o.from >= s.from - 0.1 && o.from < s.to)
+      .map((o) => (o.type === 'hookTitle' ? `заголовок «${o.props.lines.join(' / ')}»` : o.type === 'pill' ? `подпись «${o.props.text.toUpperCase()}»` : `плашка «${o.props.label}: ${o.props.value}${o.props.suffix ?? ''}»`))
+      .join('; ');
+    return `| ${fmt(s.from)}–${fmt(s.to)} | ${say(s.from, s.to)} | ${s.note ?? s.type} | ${ex || '—'} |`;
+  });
+  rows.push(`| ${fmt(sb.cta.from)}–${fmt(sb.duration)} | ${say(sb.cta.from, 999) || '(призыв текстом под музыку)'} | Финал: «${sb.cta.lead.toUpperCase()}», огромное оранжевое **${sb.cta.keyword}**, подпись «${sb.cta.tail.toUpperCase()}», stroy-control1.ru | — |`);
+  return ['| Время | Ваши слова | Что в кадре | Надписи |', '|---|---|---|---|', ...rows].join('\n');
+}
+
 export function storyboardTable(sb) {
+  if (sb.style === 'dark') return darkTable(sb);
   const rows = sb.scenes.map((s) => {
     const kin = sb.kinetic.filter((k) => k.at >= s.from && k.at < s.to).map((k) => ` + слово «${k.text}» крупно`).join('');
     const what = s.type === 'screenshot' ? `${s.note} (${s.props?.src})` : s.note;

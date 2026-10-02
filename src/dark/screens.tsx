@@ -6,7 +6,7 @@ import {C, FONT} from '../theme';
 
 export type Rect = {x: number; y: number; w: number; h: number};
 export type ScreenDef = {w: number; h: number; regions: Record<string, Rect>; Comp: React.FC<ScreenProps>};
-export type ScreenProps = {overdueAt?: number; acceptAt?: number};
+export type ScreenProps = {overdueAt?: number; acceptAt?: number; notStartedAt?: number};
 
 const useT = () => {
   const f = useCurrentFrame();
@@ -36,7 +36,7 @@ const Box: React.FC<{r: Rect; children: React.ReactNode; style?: React.CSSProper
   </div>
 );
 
-const TopBar: React.FC<{active: string; w: number}> = ({active, w}) => (
+const TopBar: React.FC<{active: string; w: number; user?: [string, string, string]}> = ({active, w, user = ['НМ', 'Никитина Мария', 'ГИП']}) => (
   <div style={{position: 'absolute', left: 40, top: 0, width: w - 80, height: 64, display: 'flex', alignItems: 'center', gap: 26, borderBottom: `1.5px solid ${C.line}`, fontSize: 19}}>
     <div style={{display: 'flex', alignItems: 'center', gap: 10, fontWeight: 800}}>
       <div style={{width: 24, height: 24, borderRadius: 7, background: `linear-gradient(135deg, #b08d5a, ${C.accent})`}} />
@@ -49,10 +49,10 @@ const TopBar: React.FC<{active: string; w: number}> = ({active, w}) => (
       </span>
     ))}
     <div style={{flex: 1}} />
-    <div style={{width: 36, height: 36, borderRadius: 99, background: C.accentSoft, color: C.accent, fontWeight: 800, fontSize: 15, display: 'flex', alignItems: 'center', justifyContent: 'center'}}>НМ</div>
+    <div style={{width: 36, height: 36, borderRadius: 99, background: C.accentSoft, color: C.accent, fontWeight: 800, fontSize: 15, display: 'flex', alignItems: 'center', justifyContent: 'center'}}>{user[0]}</div>
     <div style={{lineHeight: 1.2, fontSize: 16}}>
-      Никитина Мария
-      <div style={{color: C.muted, fontSize: 14}}>ГИП</div>
+      {user[1]}
+      <div style={{color: C.muted, fontSize: 14}}>{user[2]}</div>
     </div>
   </div>
 );
@@ -91,7 +91,7 @@ const cycloRows = [
 const STC: Record<St, string> = {done: C.done, work: C.accent, wait: C.faint, overdue: C.overdue};
 const STL: Record<St, string> = {done: 'Завершён', work: 'В работе', wait: 'Ожидает', overdue: 'Просрочен'};
 
-const ProjectComp: React.FC<ScreenProps> = ({overdueAt = 0}) => {
+const ProjectComp: React.FC<ScreenProps> = ({overdueAt = 0, notStartedAt}) => {
   const {t, f, fps} = useT();
   const od = interpolate(t, [overdueAt, overdueAt + 0.35], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
   const pulse = od > 0 ? 0.5 + 0.5 * Math.sin(f / 4) : 0;
@@ -143,6 +143,7 @@ const ProjectComp: React.FC<ScreenProps> = ({overdueAt = 0}) => {
         const r = nodeRect(i);
         const st: St = i === OVERDUE && od > 0.5 ? 'overdue' : n.st;
         const isOd = i === OVERDUE && od > 0;
+        const ns = i === 5 && notStartedAt !== undefined && t >= notStartedAt;
         return (
           <div
             key={i}
@@ -156,7 +157,7 @@ const ProjectComp: React.FC<ScreenProps> = ({overdueAt = 0}) => {
             <div style={{fontSize: 17, fontWeight: 700, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis'}}>{n.name}</div>
             <div style={{display: 'flex', justifyContent: 'space-between', fontSize: 14, color: C.muted, marginTop: 8}}>
               <span>{n.dates}</span>
-              <span style={{color: STC[st], fontWeight: 700}}>{STL[st]}</span>
+              <span style={{color: ns ? C.overdue : STC[st], fontWeight: 700}}>{ns ? 'Не начат' : STL[st]}</span>
             </div>
           </div>
         );
@@ -209,6 +210,7 @@ export const PROJECT: ScreenDef = {
     kpi: {x: 40, y: 200, w: 1320, h: 84},
     graph: GRAPH,
     overdue: {...nodeRect(OVERDUE), y: nodeRect(OVERDUE).y - 34, h: NH + 34},
+    engNode: nodeRect(5),
     overdueZone: {x: nodeRect(OVERDUE).x - 300, y: GRAPH.y + 60, w: 760, h: 270},
     cyclo: CYCLO,
     cycloLate: {x: CYCLO.x + 26, y: CYCLO.y + 290, w: CYCLO.w - 52, h: 50},
@@ -270,10 +272,11 @@ const TaskComp: React.FC<ScreenProps> = ({acceptAt = 1.5}) => {
       </Box>
       <Box r={{x: 910, y: 220, w: 450, h: 300}}>
         <div style={{fontSize: 22, fontWeight: 800}}>Вопросы по задаче</div>
-        <div style={{fontSize: 18, marginTop: 18, lineHeight: 1.35}}>Нужны данные по мощности от заказчика</div>
-        <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 10}}>
-          <span style={{fontSize: 15, color: C.muted}}>ЭлектроПроект · вчера</span>
-          <span style={{background: C.accent, color: C.accentInk, borderRadius: 10, padding: '6px 14px', fontSize: 15}}>Решён</span>
+        <div style={{fontSize: 18, marginTop: 18, lineHeight: 1.35}}>Когда будут данные по мощности?</div>
+        <div style={{fontSize: 15, color: C.muted, marginTop: 4}}>Никитина Мария · вчера</div>
+        <div style={{marginTop: 14, background: C.soft, borderRadius: 12, padding: '12px 14px', fontSize: 17, lineHeight: 1.35}}>
+          Получили от заказчика, схемы щитов сдаём в среду
+          <div style={{fontSize: 14, color: C.muted, marginTop: 4}}>ЭлектроПроект · ответ исполнителя</div>
         </div>
       </Box>
       <Box r={{x: 910, y: 550, w: 450, h: 300}}>
@@ -301,8 +304,79 @@ export const TASK: ScreenDef = {
     head: {x: 30, y: 70, w: 1000, h: 140},
     review: REVIEW,
     accept: {x: REVIEW.x + 20, y: REVIEW.y + 100, w: 560, h: 100},
-    status: {x: 30, y: 150, w: 560, h: 56},
+    status: {x: 30, y: 150, w: 640, h: 56},
+    meta: {x: 30, y: 100, w: 820, h: 106},
+    questions: {x: 910, y: 220, w: 450, h: 300},
   },
 };
 
-export const SCREENS: Record<string, ScreenDef> = {project: PROJECT, task: TASK};
+// ---------------- Проекты бюро (вид руководителя) ----------------
+const BW = 1400;
+const BH = 1000;
+const ROW_Y = 330;
+const ROW_H = 96;
+const COLS = {name: 66, gip: 520, stage: 760, stages: 1060, due: 1180};
+const bureauRows = [
+  {n: 'Поликлиника на Лесной, капремонт', g: 'Никитина Мария', st: 'Проектная: АР и КР', p: '4/7', d: '10.08', late: true},
+  {n: 'Стоматология на Мира', g: 'Орлов Денис', st: 'Концепция', p: '2/6', d: '15.09'},
+  {n: 'Детская поликлиника, реконструкция', g: 'Никитина Мария', st: 'Инженерные разделы', p: '5/8', d: '30.08', late: true},
+  {n: 'Лаборатория, перепланировка', g: 'Ким Анна', st: 'Сметная документация', p: '6/7', d: '01.08'},
+  {n: 'Медцентр, новый филиал', g: 'Никитина Мария', st: 'Обмерные работы', p: '1/7', d: '20.11'},
+  {n: 'Клиника на Садовой, ремонт', g: 'Орлов Денис', st: 'Экспертиза', p: '7/8', d: '05.08'},
+];
+const rowRect = (i: number): Rect => ({x: 52, y: ROW_Y + i * ROW_H, w: 1296, h: ROW_H});
+const BureauComp: React.FC<ScreenProps> = () => {
+  const {f, fps} = useT();
+  return (
+    <div style={{position: 'relative', width: BW, height: BH, background: C.bg, fontFamily: FONT, color: C.ink}}>
+      <TopBar active="Проекты" w={BW} user={['РБ', 'Руководитель бюро', 'вся организация']} />
+      <div style={{position: 'absolute', left: 40, top: 96, fontSize: 40, fontWeight: 800}}>Проекты бюро</div>
+      <div style={{position: 'absolute', left: 40, top: 150, fontSize: 19, color: C.muted}}>
+        Проектов: 6 · ГИПов: 3 · <span style={{color: C.overdue}}>просрочено этапов: 2</span>
+      </div>
+      <div style={{position: 'absolute', right: 40, top: 100, background: C.accent, color: C.accentInk, borderRadius: 12, padding: '12px 22px', fontSize: 18, fontWeight: 700}}>Новый проект</div>
+      <Box r={{x: 40, y: 210, w: 1320, h: 720}} style={{padding: 0}}>
+        <div />
+      </Box>
+      <div style={{position: 'absolute', top: 262, left: 0, width: BW, fontSize: 16, color: C.muted}}>
+        <span style={{position: 'absolute', left: COLS.name}}>Проект</span>
+        <span style={{position: 'absolute', left: COLS.gip}}>ГИП</span>
+        <span style={{position: 'absolute', left: COLS.stage}}>Сейчас в работе</span>
+        <span style={{position: 'absolute', left: COLS.stages}}>Этапы</span>
+        <span style={{position: 'absolute', left: COLS.due}}>Окончание</span>
+      </div>
+      {bureauRows.map((r, i) => {
+        const s = spring({frame: f - 3 - i * 3, fps, config: {damping: 18}});
+        const y = ROW_Y + i * ROW_H;
+        return (
+          <div key={i} style={{position: 'absolute', left: 52, top: y, width: 1296, height: ROW_H, borderTop: `1.5px solid ${C.line}`, background: r.late ? 'rgba(192,86,63,0.07)' : 'transparent', opacity: s}}>
+            <div style={{position: 'absolute', left: COLS.name - 52, top: 22, fontSize: 21, fontWeight: 700, color: C.accent, textDecoration: 'underline', width: 440}}>{r.n}</div>
+            <div style={{position: 'absolute', left: COLS.name - 52, top: 54, fontSize: 15, color: C.muted}}>{r.late ? '' : 'в срок'}</div>
+            <div style={{position: 'absolute', left: COLS.gip - 52, top: 30, fontSize: 19}}>{r.g}</div>
+            <div style={{position: 'absolute', left: COLS.stage - 52, top: 22, fontSize: 19}}>{r.st}</div>
+            {r.late ? <div style={{position: 'absolute', left: COLS.stage - 52, top: 52, fontSize: 15, color: '#fff', background: C.overdue, borderRadius: 99, padding: '2px 10px'}}>просрочен этап</div> : null}
+            <div style={{position: 'absolute', left: COLS.stages - 52, top: 28, fontSize: 22, fontWeight: 700}}>{r.p}</div>
+            <div style={{position: 'absolute', left: COLS.due - 52, top: 28, fontSize: 21, color: r.late ? C.overdue : C.ink, fontWeight: r.late ? 700 : 400}}>{r.d}</div>
+          </div>
+        );
+      })}
+    </div>
+  );
+};
+
+export const BUREAU: ScreenDef = {
+  w: BW,
+  h: BH,
+  Comp: BureauComp,
+  regions: {
+    all: {x: 0, y: 0, w: BW, h: BH},
+    table: {x: 40, y: 240, w: 1320, h: 690},
+    stageCol: {x: COLS.stage - 14, y: 250, w: 290, h: 6 * ROW_H + 80},
+    gipCol: {x: COLS.gip - 14, y: 250, w: 230, h: 6 * ROW_H + 80},
+    late1: rowRect(0),
+    late2: rowRect(2),
+    lateRows: {x: 52, y: ROW_Y, w: 1296, h: ROW_H * 3},
+  },
+};
+
+export const SCREENS: Record<string, ScreenDef> = {project: PROJECT, task: TASK, bureau: BUREAU};

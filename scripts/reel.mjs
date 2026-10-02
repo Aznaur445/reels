@@ -90,13 +90,33 @@ for (const w of words) {
     }
   }
 }
+// Исправления по фразам: meta.json → "replacePhrases": {"все бюро": "всё бюро"} (по словам, пунктуация сохраняется)
+for (const [from, to] of Object.entries(meta.replacePhrases ?? {})) {
+  const a = from.split(' ');
+  const b = to.split(' ');
+  for (let i = 0; i + a.length <= words.length; i++) {
+    if (a.every((x, k) => words[i + k].text.replace(/[.,!?…:;—–\s]+$/, '').toLowerCase() === x.toLowerCase())) {
+      a.forEach((_, k) => (words[i + k].text = words[i + k].text.replace(/^[^.,!?…:;—–\s]+/, b[k] ?? '')));
+      termLog.push(`${from} → ${to}`);
+    }
+  }
+}
+// Тире и другие знаки, распознанные отдельным «словом», приклеиваем к предыдущему слову
+for (let i = words.length - 1; i > 0; i--) {
+  if (/^[–—-]+$/.test(words[i].text)) {
+    words[i - 1] = {...words[i - 1], text: `${words[i - 1].text} —`, end: words[i].end};
+    words.splice(i, 1);
+  }
+}
 fs.writeFileSync(P('transcript.json'), JSON.stringify({engine: raw.engine, words}, null, 1));
 console.log(`3. Термины исправлены: ${termLog.length ? termLog.join('; ') : 'нечего исправлять'}`);
 
 // 4. Монтаж
 let edit;
-if (fs.existsSync(P('edit.json')) && !args.includes('--reedit')) {
-  edit = JSON.parse(fs.readFileSync(P('edit.json'), 'utf8'));
+const savedEdit = fs.existsSync(P('edit.json')) ? JSON.parse(fs.readFileSync(P('edit.json'), 'utf8')) : null;
+if (savedEdit && savedEdit.wordCount !== undefined && savedEdit.wordCount !== words.length) console.log('   расшифровка изменилась — монтаж пересобран заново');
+if (savedEdit && !args.includes('--reedit') && (savedEdit.wordCount ?? words.length) === words.length) {
+  edit = savedEdit;
   console.log('4. Монтаж по edit.json (ваши правки сохранены)');
 } else {
   const sents = sentences(words);
@@ -105,6 +125,7 @@ if (fs.existsSync(P('edit.json')) && !args.includes('--reedit')) {
     maxPause: 0.4,
     pauseTo: 0.2,
     crossfade: 0.04,
+    wordCount: words.length,
     cuts: autoCuts(words),
     sentences: sents,
     hook: suggestHook(sents),

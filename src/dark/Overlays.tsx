@@ -78,13 +78,14 @@ export const NumberBadge: React.FC<{dur: number; label: string; value: number; s
 export const CardStack: React.FC<{
   dur: number;
   header?: {value: string; label: string; sub?: string};
-  items: {title: string; sub?: string; value: string; pct: number; late?: boolean}[];
+  items: {title: string; sub?: string; value: string; pct?: number; late?: boolean}[];
   interval?: number;
-}> = ({header, items, interval = 0.6}) => {
+  start?: number;
+}> = ({header, items, interval = 0.6, start = 0.3}) => {
   const f = useCurrentFrame();
   const {fps} = useVideoConfig();
   const t = f / fps;
-  const active = Math.min(items.length - 1, Math.floor(Math.max(0, t - 0.3) / interval));
+  const active = t < start ? -1 : Math.min(items.length - 1, Math.floor((t - start) / interval));
   return (
     <div style={{position: 'absolute', top: 360, left: 60, width: 870, fontFamily: FONT}}>
       {header ? (
@@ -98,14 +99,14 @@ export const CardStack: React.FC<{
       ) : null}
       <div style={{height: 26}} />
       {items.map((it, i) => (
-        <Card key={i} delay={Math.round((0.3 + i * interval) * fps)} active={i === active}>
+        <Card key={i} delay={Math.round((start + i * interval) * fps)} active={i === active}>
           <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'baseline'}}>
             <span style={{fontSize: 30, fontWeight: 700, color: C.ink}}>
               {it.title} <span style={{color: C.muted, fontWeight: 500, fontSize: 24}}>{it.sub}</span>
             </span>
             <span style={{fontSize: 32, fontWeight: 800, color: it.late ? C.overdue : C.ink}}>{it.value}</span>
           </div>
-          <Bar pct={it.pct} late={it.late} delay={Math.round((0.4 + i * interval) * fps)} />
+          {it.pct !== undefined ? <Bar pct={it.pct} late={it.late} delay={Math.round((start + 0.1 + i * interval) * fps)} /> : null}
         </Card>
       ))}
     </div>
@@ -202,7 +203,7 @@ const Bubble: React.FC<{delay: number; title: string; text: string}> = ({delay, 
   return (
     <div style={{background: '#22355e', borderRadius: 18, padding: '14px 18px', marginBottom: 14, opacity: s, transform: `translateY(${(1 - s) * 30}px) scale(${0.9 + 0.1 * s})`, transformOrigin: 'left bottom'}}>
       <div style={{color: '#fff', fontWeight: 800, fontSize: 25}}>{title}</div>
-      <div style={{color: '#d7e1f5', fontSize: 22, marginTop: 6, lineHeight: 1.35}}>{text}</div>
+      <div style={{color: '#d7e1f5', fontSize: 22, marginTop: 6, lineHeight: 1.35, whiteSpace: 'pre-line'}}>{text}</div>
     </div>
   );
 };

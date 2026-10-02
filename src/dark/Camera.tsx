@@ -6,7 +6,7 @@ import {Rect, SCREENS, ScreenProps} from './screens';
 export type Shot = {
   at: number; // секунды от начала сцены
   focus: string; // блок экрана, на который наезжает камера ('all' — весь экран)
-  spot?: string; // блок, который приподнимается в оранжевой рамке, остальное затемняется
+  spot?: string | string[]; // блок(и), которые приподнимаются в оранжевой рамке, остальное затемняется
   zoom?: number; // множитель приближения
   width?: number; // ширина кадра под блок, px
   cy?: number; // центр кадра по вертикали
@@ -47,9 +47,13 @@ export const Camera: React.FC<{dur: number; screen: string; shots: Shot[]; scree
   const drift = 1 + 0.02 * Math.sin(t * 0.9);
   const enter = spring({frame, fps, config: {damping: 18, stiffness: 110}});
 
+  const list = (x?: string | string[]) => (x ? (Array.isArray(x) ? x : [x]) : []);
   const spots: {name: string; q: number}[] = [];
-  if (cur.spot) spots.push({name: cur.spot, q: spring({frame: frame - Math.round((cur.at + 0.35) * fps), fps, config: {damping: 14, stiffness: 140}})});
-  if (k > 0 && prev.spot && prev.spot !== cur.spot) spots.push({name: prev.spot, q: 1 - interpolate(t, [cur.at, cur.at + 0.25], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'})});
+  list(cur.spot).forEach((name, i) => spots.push({name, q: spring({frame: frame - Math.round((cur.at + 0.35 + i * 0.25) * fps), fps, config: {damping: 14, stiffness: 140}})}));
+  if (k > 0) {
+    const fade = 1 - interpolate(t, [cur.at, cur.at + 0.25], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
+    list(prev.spot).filter((n) => !list(cur.spot).includes(n)).forEach((name) => spots.push({name, q: fade}));
+  }
   const dim = Math.max(dimAll, ...spots.map((s) => s.q * 0.62), 0);
 
   return (

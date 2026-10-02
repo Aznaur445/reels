@@ -36,9 +36,18 @@ export function score(text) {
 }
 
 /** Автоматические кандидаты на вырез. apply=true — уверенные, false — на усмотрение. */
+// Фразы, которые Whisper иногда «дописывает» в тишине, хотя их не говорили
+const HALLUCINATIONS = /субтитры (создавал|сделал|делал|подготовил)|dimatorzok|редактор субтитров|корректор|продолжение следует|спасибо за просмотр|подписывайтесь на канал/i;
+
 export function autoCuts(words) {
   const cuts = [];
+  for (const s of sentences(words)) {
+    if (HALLUCINATIONS.test(s.text)) {
+      for (let i = s.words[0]; i <= s.words[1]; i++) cuts.push({word: i, text: words[i].text, at: words[i].start, reason: 'этого нет на записи — Whisper дописал сам', apply: true});
+    }
+  }
   const add = (i, reason, apply = true) => {
+    if (cuts.some((c) => c.word === i && c.reason.startsWith('этого нет'))) return;
     if (!cuts.some((c) => c.word === i)) cuts.push({word: i, text: words[i].text, at: words[i].start, reason, apply});
   };
   words.forEach((w, i) => {
