@@ -20,8 +20,14 @@ npm run studio                                                  # предпро
 
 ### Что делает `npm run reel`
 
-1. **Звук** (`scripts/lib/audio.mjs`, ffmpeg): срез низа и верха, шумоподавление `afftdn`, лёгкий компрессор,
-   обрезка тишины в начале и в конце, двухпроходный `loudnorm` до −14 LUFS → `audio/clean.wav`. Исходник в `source/` не меняется.
+1. **Звук** (`scripts/lib/audio.mjs`, ffmpeg), студийная обработка по умолчанию:
+   - нейросетевое шумоподавление RNNoise (`arnndn`, модель `scripts/models/sh.rnnn` из [GregorR/rnnoise-models](https://github.com/GregorR/rnnoise-models));
+   - мягкий гейт против эха комнаты в паузах;
+   - эквалайзер: тепло на 120 Гц, минус «коробка» на 300–550 Гц, разборчивость на 3–5,5 кГц, воздух от 10 кГц;
+   - де-эссер, два компрессора, лимитер;
+   - обрезка тишины и двухпроходный `loudnorm` до −14 LUFS → `audio/clean.wav`.
+
+   Исходник в `source/` не меняется. `--light` включает прежнюю лёгкую обработку. `--restudio` переобрабатывает готовый ролик без сдвига таймингов, прежняя версия сохраняется в `audio/clean-light.wav`.
 2. **Расшифровка** (`scripts/transcribe.py`): faster-whisper `large-v3` (или `medium`, `WHISPER_MODEL` в `.env`), язык ru,
    тайминг каждого слова → `transcript.raw.json`. Если локальная модель недоступна, используется OpenAI API
    (`OPENAI_API_KEY` в `.env`). Если нет и ключа, расшифровку делает **GitHub Actions** («Расшифровка»): закоммитьте

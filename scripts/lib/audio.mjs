@@ -1,24 +1,42 @@
 // Обработка звука через ffmpeg: шумоподавление, компрессор, обрезка тишины, громкость −14 LUFS.
 import {execFileSync, spawnSync} from 'node:child_process';
 import fs from 'node:fs';
+import {fileURLToPath} from 'node:url';
 
 const ff = (args) => execFileSync('ffmpeg', ['-hide_banner', '-v', 'error', '-y', ...args], {stdio: ['ignore', 'pipe', 'pipe']}).toString();
 
 export const duration = (file) =>
   Number(execFileSync('ffprobe', ['-v', 'error', '-show_entries', 'format=duration', '-of', 'csv=p=0', file]).toString().trim());
 
-const CLEAN =
-  'highpass=f=70,lowpass=f=14000,' +
-  'afftdn=nr=12:nf=-35:tn=1,' + // шумоподавление по спектру, шумовой профиль отслеживается
-  'acompressor=threshold=-21dB:ratio=3:attack=8:release=160:makeup=2,' + // лёгкий компрессор
-  // обрезка тишины в начале, затем разворот и обрезка в конце
+const MODEL = fileURLToPath(new URL('../models/sh.rnnn', import.meta.url));
+
+// Студийная обработка голоса:
+// RNNoise (нейросетевое шумоподавление) → срез низа → мягкий гейт против эха комнаты в паузах →
+// EQ: тепло 120 Гц, минус «коробка» 300–550 Гц, разборчивость 3–5,5 кГц, воздух от 10 кГц →
+// де-эссер → два компрессора → лимитер. Громкость потом выводится в −14 LUFS.
+export const STUDIO =
+  `arnndn=m=${MODEL}:mix=0.9,highpass=f=85:poles=2,` +
+  'agate=threshold=0.012:ratio=2:range=0.25:attack=5:release=180,' +
+  'equalizer=f=120:t=q:w=1:g=1.5,equalizer=f=300:t=q:w=1.2:g=-4,equalizer=f=550:t=q:w=1.5:g=-2,' +
+  'equalizer=f=3200:t=q:w=1:g=4,equalizer=f=5500:t=q:w=1.5:g=2,highshelf=f=10000:g=3,' +
+  'deesser=i=0.4:m=0.5:f=0.5,' +
+  'acompressor=threshold=-24dB:ratio=3:attack=5:release=80:makeup=3,' +
+  'acompressor=threshold=-12dB:ratio=6:attack=1:release=40:makeup=1,' +
+  'alimiter=limit=0.89:level=false';
+
+// Лёгкая обработка (как раньше): спектральное шумоподавление и компрессор
+const LIGHT = 'highpass=f=70,lowpass=f=14000,afftdn=nr=12:nf=-35:tn=1,acompressor=threshold=-21dB:ratio=3:attack=8:release=160:makeup=2';
+
+// Обрезка тишины в начале, затем разворот и обрезка в конце
+const TRIM =
   'silenceremove=start_periods=1:start_duration=0.05:start_threshold=-45dB:start_silence=0.12,' +
   'areverse,silenceremove=start_periods=1:start_duration=0.05:start_threshold=-45dB:start_silence=0.25,areverse';
 
-/** Исходник (любой аудио/видео) → audio/clean.wav (48 кГц, моно, −14 LUFS). */
-export function cleanAudio(src, out) {
+/** Исходник (любой аудио/видео) → audio/clean.wav (48 кГц, моно, −14 LUFS). studio=false — лёгкая обработка. */
+export function cleanAudio(src, out, {studio = true, trim = true} = {}) {
   const tmp = out.replace(/\.wav$/, '.pre.wav');
-  ff(['-i', src, '-vn', '-ac', '1', '-ar', '48000', '-af', CLEAN, tmp]);
+  const chain = [studio ? STUDIO : LIGHT, trim ? TRIM : null].filter(Boolean).join(',');
+  ff(['-i', src, '-vn', '-ac', '1', '-ar', '48000', '-af', chain, tmp]);
   // Двухпроходный loudnorm: замер, затем точная нормализация
   const r = execFileSyncStderr(['-hide_banner', '-i', tmp, '-af', 'loudnorm=I=-14:TP=-1.5:LRA=11:print_format=json', '-f', 'null', '-']);
   const m = JSON.parse(r.slice(r.lastIndexOf('{')));

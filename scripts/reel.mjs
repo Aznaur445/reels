@@ -56,9 +56,15 @@ console.log(`\n▶ Ролик ${id}  (${path.relative(process.cwd(), dir)})`);
 // 1. Звук
 const source = fs.readdirSync(P('source')).filter((f) => !f.startsWith('.')).map((f) => P('source', f))[0];
 if (!source) throw new Error('В папке source/ нет исходника');
-if (!fs.existsSync(P('audio', 'clean.wav')) || args.includes('--reclean')) {
-  console.log('1. Обработка звука: шумоподавление, компрессор, обрезка тишины, −14 LUFS…');
-  const r = cleanAudio(source, P('audio', 'clean.wav'));
+if (args.includes('--restudio') && fs.existsSync(P('audio', 'clean.wav'))) {
+  // Студийная обработка поверх уже обрезанной дорожки: длина та же, тайминги расшифровки не сдвигаются
+  console.log('1. Студийная обработка audio/clean.wav (прежняя версия — audio/clean-light.wav)…');
+  if (!fs.existsSync(P('audio', 'clean-light.wav'))) fs.copyFileSync(P('audio', 'clean.wav'), P('audio', 'clean-light.wav'));
+  cleanAudio(P('audio', 'clean-light.wav'), P('audio', 'clean.wav'), {studio: true, trim: false});
+  console.log(`   audio/clean.wav ${measureLufs(P('audio', 'clean.wav')).toFixed(1)} LUFS, ${duration(P('audio', 'clean.wav')).toFixed(2)} с`);
+} else if (!fs.existsSync(P('audio', 'clean.wav')) || args.includes('--reclean')) {
+  console.log('1. Студийная обработка звука: RNNoise, EQ, де-эссер, компрессия, обрезка тишины, −14 LUFS…');
+  const r = cleanAudio(source, P('audio', 'clean.wav'), {studio: !args.includes('--light')});
   console.log(`   исходник ${r.inputLufs.toFixed(1)} LUFS → audio/clean.wav ${measureLufs(P('audio', 'clean.wav')).toFixed(1)} LUFS, ${duration(P('audio', 'clean.wav')).toFixed(1)} с`);
 } else console.log('1. Звук уже обработан: audio/clean.wav');
 
