@@ -74,15 +74,17 @@ const BidRow: React.FC<{b: Bid; i: number; delay: number}> = ({b, i, delay}) => 
   );
 };
 
-export const OrderFeed: React.FC<SceneProps & {orders?: Order[]; bids?: Bid[]; showBids?: boolean}> = ({
+export const OrderFeed: React.FC<SceneProps & {orders?: Order[]; bids?: Bid[]; showBids?: boolean; bidsTitle?: string; bidsAt?: number}> = ({
   dur,
   orders = ordersDefault,
   bids = bidsDefault,
   showBids = true,
+  bidsTitle = 'Отклики · ОВиК',
+  bidsAt: bidsFrac = 0.42,
 }) => {
   const frame = useCurrentFrame();
-  const bidsAt = Math.round(dur * 0.42);
-  const b = showBids ? frac(frame, dur, 0.38, 0.5) : 0;
+  const bidsAt = Math.round(dur * bidsFrac);
+  const b = showBids ? frac(frame, dur, bidsFrac - 0.04, bidsFrac + 0.08) : 0;
   const scroll = interpolate(frame, [0, dur], [0, -30]);
   return (
     <Panel style={{width: 870, boxSizing: 'border-box', overflow: 'hidden'}}>
@@ -103,7 +105,7 @@ export const OrderFeed: React.FC<SceneProps & {orders?: Order[]; bids?: Bid[]; s
             transform: `translateY(${(1 - b) * 60}px)`,
           }}
         >
-          <div style={{fontSize: 28, fontWeight: 800}}>Отклики · ОВиК</div>
+          <div style={{fontSize: 28, fontWeight: 800}}>{bidsTitle}</div>
           <div style={{fontSize: 21, color: C.muted, marginTop: 4}}>исполнители предлагают цену и срок</div>
           {bids.map((x, i) => (
             <BidRow key={i} b={x} i={i} delay={bidsAt} />

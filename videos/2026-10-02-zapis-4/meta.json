@@ -1,8 +1,16 @@
 {
-  "title": "zapis-4",
+  "title": "Сроки по договору в голове",
   "trim": {
     "start": 0.5066,
     "end": 38.4306
   },
-  "preset": "natural"
+  "preset": "natural",
+  "keyword": "СРОКИ",
+  "replace": {
+    "ИКР": "и КР",
+    "узнаете": "узнаёте"
+  },
+  "replacePhrases": {
+    "сдвигается все": "сдвигается всё"
+  }
 }

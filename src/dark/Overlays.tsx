@@ -81,13 +81,16 @@ export const CardStack: React.FC<{
   items: {title: string; sub?: string; value: string; pct?: number; late?: boolean}[];
   interval?: number;
   start?: number;
-}> = ({header, items, interval = 0.6, start = 0.3}) => {
+  at?: number[]; // моменты появления карточек (с начала сцены), если не равномерно
+  compact?: boolean;
+}> = ({header, items, interval = 0.6, start = 0.3, at, compact}) => {
   const f = useCurrentFrame();
   const {fps} = useVideoConfig();
   const t = f / fps;
-  const active = t < start ? -1 : Math.min(items.length - 1, Math.floor((t - start) / interval));
+  const times = items.map((_, i) => at?.[i] ?? start + i * interval);
+  const active = times.reduce((acc, x, i) => (t >= x ? i : acc), -1);
   return (
-    <div style={{position: 'absolute', top: 360, left: 60, width: 870, fontFamily: FONT}}>
+    <div style={{position: 'absolute', top: compact ? 320 : 360, left: 60, width: 870, fontFamily: FONT}}>
       {header ? (
         <Card delay={0} active={false}>
           <div style={{fontSize: 18, color: C.muted, textTransform: 'uppercase', letterSpacing: 1, fontWeight: 700}}>{header.label}</div>
@@ -99,12 +102,12 @@ export const CardStack: React.FC<{
       ) : null}
       <div style={{height: 26}} />
       {items.map((it, i) => (
-        <Card key={i} delay={Math.round((start + i * interval) * fps)} active={i === active}>
+        <Card key={i} delay={Math.round(times[i] * fps)} active={i === active} compact={compact}>
           <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'baseline'}}>
-            <span style={{fontSize: 30, fontWeight: 700, color: C.ink}}>
+            <span style={{fontSize: compact ? 26 : 30, fontWeight: 700, color: C.ink}}>
               {it.title} <span style={{color: C.muted, fontWeight: 500, fontSize: 24}}>{it.sub}</span>
             </span>
-            <span style={{fontSize: 32, fontWeight: 800, color: it.late ? C.overdue : C.ink}}>{it.value}</span>
+            <span style={{fontSize: compact ? 24 : 32, fontWeight: 800, color: it.late ? C.overdue : compact ? C.muted : C.ink}}>{it.value}</span>
           </div>
           {it.pct !== undefined ? <Bar pct={it.pct} late={it.late} delay={Math.round((start + 0.1 + i * interval) * fps)} /> : null}
         </Card>
@@ -120,15 +123,15 @@ const Bar: React.FC<{pct: number; late?: boolean; delay: number}> = ({pct, late,
     </div>
   );
 };
-const Card: React.FC<{delay: number; active: boolean; children: React.ReactNode}> = ({delay, active, children}) => {
+const Card: React.FC<{delay: number; active: boolean; children: React.ReactNode; compact?: boolean}> = ({delay, active, children, compact}) => {
   const s = useS(delay, {damping: 14});
   return (
     <div
       style={{
         background: C.panel,
-        borderRadius: 18,
-        padding: '22px 28px',
-        marginBottom: 18,
+        borderRadius: compact ? 14 : 18,
+        padding: compact ? '12px 22px' : '22px 28px',
+        marginBottom: compact ? 10 : 18,
         opacity: s,
         transform: `translateY(${(1 - s) * 60}px) scale(${active ? 1.03 : 1})`,
         boxShadow: active ? `0 0 0 5px ${D.accent}, 0 24px 50px rgba(0,0,0,0.5)` : '0 14px 34px rgba(0,0,0,0.35)',
@@ -238,7 +241,7 @@ export const CtaDark: React.FC<{keyword: string; lead?: string; pill?: string; s
   return (
     <div style={{position: 'absolute', left: 40, width: 920, top: 560, textAlign: 'center', fontFamily: HEAD}}>
       <div style={{fontSize: 50, fontWeight: 900, color: D.white, textTransform: 'uppercase', opacity: a, transform: `translateY(${(1 - a) * 30}px)`}}>{lead}</div>
-      <div style={{fontSize: size, fontWeight: 900, color: D.accent, lineHeight: 1, marginTop: 10, transform: `scale(${0.3 + 0.7 * k}) translateY(${Math.sin(f / 10) * 5}px)`, opacity: Math.min(1, k * 1.5), textShadow: '0 10px 40px rgba(255,90,46,0.35)', letterSpacing: -4}}>
+      <div style={{fontSize: size, fontWeight: 900, color: D.accent, lineHeight: 1, marginTop: 40, transform: `scale(${0.3 + 0.7 * k}) translateY(${Math.sin(f / 10) * 5}px)`, opacity: Math.min(1, k * 1.5), textShadow: '0 10px 40px rgba(255,90,46,0.35)', letterSpacing: -4}}>
         {keyword.toUpperCase()}
       </div>
       <div style={{display: 'flex', justifyContent: 'center', marginTop: 40}}>

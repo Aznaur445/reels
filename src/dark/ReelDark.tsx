@@ -1,6 +1,6 @@
 import React, {useMemo} from 'react';
 import {AbsoluteFill, Audio, Sequence, staticFile, useCurrentFrame, useVideoConfig} from 'remotion';
-import {Chaos} from '../components';
+import {Chaos, ExecutorCard, OrderFeed} from '../components';
 import {FONT} from '../theme';
 import type {Storyboard, Word} from '../types';
 import {Camera} from './Camera';
@@ -33,6 +33,16 @@ const SCENES: Record<string, React.FC<any>> = {
   camera: Camera,
   cardStack: CardStack,
   phoneChat: ({dur, screen = 'project', ...p}: {dur: number; screen?: string | null}) => <PhoneChat dur={dur} Screen={screen ? <ScreenThumb screen={screen} /> : undefined} {...p} />,
+  orderFeed: ({dur, ...p}: {dur: number}) => (
+    <div style={{position: 'absolute', top: 330, left: 60}}>
+      <OrderFeed dur={dur} {...p} />
+    </div>
+  ),
+  executorCard: ({dur, ...p}: {dur: number}) => (
+    <div style={{position: 'absolute', top: 400, left: 60}}>
+      <ExecutorCard dur={dur} {...p} />
+    </div>
+  ),
   chaos: ({dur}: {dur: number}) => (
     <div style={{position: 'absolute', top: 330, left: 60}}>
       <Chaos dur={dur} />

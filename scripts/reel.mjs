@@ -111,6 +111,8 @@ for (const [from, to] of Object.entries(meta.replacePhrases ?? {})) {
     }
   }
 }
+// Точная замена слова целиком, вместе с пунктуацией: meta.json → "textFix": {"Отчет.": "«отчёт»,"}
+for (const w of words) if (meta.textFix?.[w.text] !== undefined) { termLog.push(`${w.text} → ${meta.textFix[w.text]}`); w.text = meta.textFix[w.text]; }
 // «_» в замене — убрать слово только из субтитров (звук не трогаем)
 for (let i = words.length - 1; i >= 0; i--) if (/^_[.,!?…:;]*$/.test(words[i].text)) words.splice(i, 1);
 // Тире и другие знаки, распознанные отдельным «словом», приклеиваем к предыдущему слову

@@ -6,7 +6,7 @@ import {C, FONT} from '../theme';
 
 export type Rect = {x: number; y: number; w: number; h: number};
 export type ScreenDef = {w: number; h: number; regions: Record<string, Rect>; Comp: React.FC<ScreenProps>};
-export type ScreenProps = {overdueAt?: number; acceptAt?: number; notStartedAt?: number};
+export type ScreenProps = {overdueAt?: number; acceptAt?: number; notStartedAt?: number; decideAt?: number; decision?: 'approve' | 'reject'};
 
 const useT = () => {
   const f = useCurrentFrame();
@@ -211,6 +211,8 @@ export const PROJECT: ScreenDef = {
     graph: GRAPH,
     overdue: {...nodeRect(OVERDUE), y: nodeRect(OVERDUE).y - 34, h: NH + 34},
     engNode: nodeRect(5),
+    smetaNode: nodeRect(6),
+    chain: {x: nodeRect(OVERDUE).x - 20, y: GRAPH.y + 60, w: 540, h: 260},
     overdueZone: {x: nodeRect(OVERDUE).x - 300, y: GRAPH.y + 60, w: 760, h: 270},
     cyclo: CYCLO,
     cycloLate: {x: CYCLO.x + 26, y: CYCLO.y + 290, w: CYCLO.w - 52, h: 50},
@@ -282,12 +284,14 @@ const TaskComp: React.FC<ScreenProps> = ({acceptAt = 1.5}) => {
       <Box r={{x: 910, y: 550, w: 450, h: 300}}>
         <div style={{fontSize: 22, fontWeight: 800}}>История</div>
         {[
-          ['ЭлектроПроект сдал работу на проверку', '09:12'],
-          ...(acc ? [['Никитина Мария приняла работу', '10:40']] : []),
+          ['ЭлектроПроект сдал на проверку', '12.07, 09:12'],
+          ['Никитина Мария вернула: дополнить схемы щитов', '13.07, 17:40'],
+          ['ЭлектроПроект сдал исправленную версию', '15.07, 11:05'],
+          ...(acc ? [['Никитина Мария приняла работу', 'сегодня, 10:40']] : []),
         ].map(([a, b]) => (
-          <div key={a} style={{fontSize: 17, padding: '14px 0', borderBottom: `1px solid ${C.line}`}}>
+          <div key={a} style={{fontSize: 16, padding: '9px 0', borderBottom: `1px solid ${C.line}`, lineHeight: 1.3}}>
             {a}
-            <div style={{fontSize: 14, color: C.muted}}>сегодня, {b}</div>
+            <div style={{fontSize: 13, color: C.muted}}>{b}</div>
           </div>
         ))}
       </Box>
@@ -307,6 +311,10 @@ export const TASK: ScreenDef = {
     status: {x: 30, y: 150, w: 640, h: 56},
     meta: {x: 30, y: 100, w: 820, h: 106},
     questions: {x: 910, y: 220, w: 450, h: 300},
+    docs: {x: 40, y: 550, w: 840, h: 300},
+    history: {x: 910, y: 550, w: 450, h: 300},
+    topNav: {x: 200, y: 6, w: 470, h: 54},
+    bottom: {x: 30, y: 210, w: 1340, h: 660},
   },
 };
 
@@ -439,4 +447,66 @@ export const SCHEDULE: ScreenDef = {
   },
 };
 
-export const SCREENS: Record<string, ScreenDef> = {project: PROJECT, task: TASK, bureau: BUREAU, schedule: SCHEDULE};
+// ---------------- Согласование переноса сроков этапов ----------------
+const AW = 1400;
+const AH = 860;
+const ApprovalComp: React.FC<ScreenProps & {decideAt?: number; decision?: 'approve' | 'reject'}> = ({decideAt = 99, decision = 'approve'}) => {
+  const {t, f, fps} = useT();
+  const done = t >= decideAt;
+  const s = spring({frame: f - Math.round(decideAt * fps), fps, config: {damping: 12}});
+  const press = interpolate(t, [decideAt - 0.12, decideAt, decideAt + 0.15], [1, 0.93, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
+  const ok = decision === 'approve';
+  return (
+    <div style={{position: 'relative', width: AW, height: AH, background: C.bg, fontFamily: FONT, color: C.ink}}>
+      <TopBar active="Задачи" w={AW} user={['РБ', 'Руководитель бюро', 'вся организация']} />
+      <div style={{position: 'absolute', left: 40, top: 96, fontSize: 38, fontWeight: 800}}>Согласования</div>
+      <div style={{position: 'absolute', left: 40, top: 150, fontSize: 19, color: C.muted}}>Изменения сроков этапов ждут вашего решения</div>
+      <Box r={{x: 40, y: 200, w: 1320, h: 600}} style={{border: `2px solid ${done ? (ok ? C.done : C.overdue) : '#d9c79f'}`}}>
+        <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'baseline'}}>
+          <div style={{fontSize: 26, fontWeight: 800}}>Изменение сроков · Поликлиника на Лесной</div>
+          <span style={{background: done ? (ok ? C.done : C.overdue) : C.accentSoft, color: done ? '#fff' : C.accent, borderRadius: 99, padding: '5px 16px', fontWeight: 700, fontSize: 18, transform: `scale(${done ? 0.8 + 0.2 * s : 1})`}}>
+            {done ? (ok ? '✓ Утверждено' : 'Отклонено') : 'Ждёт решения'}
+          </span>
+        </div>
+        <div style={{fontSize: 18, color: C.muted, marginTop: 8}}>Предложила ГИП Никитина Мария · причина: исходные данные от заказчика пришли позже</div>
+        <div style={{marginTop: 26, display: 'grid', gridTemplateColumns: '1fr 160px 60px 160px', rowGap: 4, fontSize: 21, alignItems: 'center'}}>
+          {['Этап', 'Было', '', 'Станет'].map((h) => (
+            <div key={h} style={{fontSize: 16, color: C.muted, paddingBottom: 8}}>{h}</div>
+          ))}
+          {[
+            ['Проектная: АР и КР', '22.07', '29.07'],
+            ['Инженерные разделы', '27.07', '03.08'],
+            ['Сметная документация', '10.08', '17.08'],
+          ].map(([n, a, b]) => (
+            <React.Fragment key={n}>
+              <div style={{padding: '14px 0', borderTop: `1px solid ${C.line}`}}>{n}</div>
+              <div style={{padding: '14px 0', borderTop: `1px solid ${C.line}`, color: C.muted, textDecoration: 'line-through'}}>{a}</div>
+              <div style={{padding: '14px 0', borderTop: `1px solid ${C.line}`, color: C.muted}}>→</div>
+              <div style={{padding: '14px 0', borderTop: `1px solid ${C.line}`, color: C.overdue, fontWeight: 700}}>{b}</div>
+            </React.Fragment>
+          ))}
+        </div>
+        <div style={{display: 'flex', gap: 18, marginTop: 34}}>
+          <div style={{background: C.accent, color: C.accentInk, borderRadius: 14, padding: '18px 34px', fontSize: 22, fontWeight: 700, transform: `scale(${ok ? press : 1})`}}>Утвердить</div>
+          <div style={{border: `1.5px solid ${C.line2}`, color: C.overdue, borderRadius: 14, padding: '18px 30px', fontSize: 22, transform: `scale(${ok ? 1 : press})`}}>Отклонить</div>
+          <div style={{flex: 1, border: `1.5px solid ${C.line2}`, borderRadius: 12, padding: '18px 16px', fontSize: 18, color: C.faint}}>Комментарий к решению</div>
+        </div>
+      </Box>
+    </div>
+  );
+};
+
+export const APPROVAL: ScreenDef = {
+  w: AW,
+  h: AH,
+  Comp: ApprovalComp as React.FC<ScreenProps>,
+  regions: {
+    all: {x: 0, y: 0, w: AW, h: AH},
+    card: {x: 40, y: 200, w: 1320, h: 600},
+    changes: {x: 56, y: 300, w: 1290, h: 260},
+    author: {x: 56, y: 210, w: 1290, h: 90},
+    buttons: {x: 56, y: 556, w: 540, h: 92},
+  },
+};
+
+export const SCREENS: Record<string, ScreenDef> = {project: PROJECT, task: TASK, bureau: BUREAU, schedule: SCHEDULE, approval: APPROVAL};
