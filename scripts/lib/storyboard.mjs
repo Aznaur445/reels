@@ -37,7 +37,7 @@ export const TOPICS = [
     re: /срок|просроч|опозд|сорва|срыв|дедлайн|этап|затяну|сдвиг/i,
     rotation: [
       {type: 'stageGraph', props: {}, min: 2.2},
-      {type: 'screenshot', props: {src: 'graph.jpg', focus: [0.55, 0.55], zoom: 1.6}, min: 1.5},
+      {type: 'screenshot', props: {src: 'graph.jpg', focus: [0.3, 0.6], zoom: 1.3}, min: 1.5},
     ],
     what: 'Схема этапов проекта: просроченный этап загорается красным',
   },
@@ -46,22 +46,22 @@ export const TOPICS = [
     re: /задач|подрядчик|исполнител|провер|приня|принима|замечани|сда[её]т|сдал|верну|контрол/i,
     rotation: [
       {type: 'taskCard', props: {}, min: 2},
-      {type: 'screenshot', props: {src: 'review.jpg', focus: [0.25, 0.35], zoom: 1.5}, min: 1.5},
+      {type: 'screenshot', props: {src: 'review.jpg', focus: [0.15, 0.2], zoom: 1.25}, min: 1.5},
     ],
     what: 'Карточка задачи: «На проверке» → «Принято» с галочкой',
   },
   {
     key: 'roles',
     re: /видит|доступ|руководител|своё|свои|роль|каждый/i,
-    rotation: [{type: 'screenshot', props: {src: 'tasks.jpg', focus: [0.35, 0.3], zoom: 1.6}, min: 1.5}],
+    rotation: [{type: 'screenshot', props: {src: 'tasks.jpg', focus: [0.35, 0.3], zoom: 1.3}, min: 1.5}],
     what: 'Экран участников: у каждого свой доступ',
   },
 ];
 
 const GENERIC = [
-  {type: 'screenshot', props: {src: 'hero.jpg', focus: [0.5, 0.35], zoom: 1.4}},
-  {type: 'screenshot', props: {src: 'stage.jpg', focus: [0.3, 0.3], zoom: 1.5}},
-  {type: 'screenshot', props: {src: 'tasks.jpg', focus: [0.3, 0.3], zoom: 1.5}},
+  {type: 'screenshot', props: {src: 'hero.jpg', focus: [0.2, 0.3], zoom: 1.25}},
+  {type: 'screenshot', props: {src: 'stage.jpg', focus: [0.2, 0.2], zoom: 1.25}},
+  {type: 'screenshot', props: {src: 'tasks.jpg', focus: [0.2, 0.2], zoom: 1.25}},
 ];
 
 const KEYWORDS = /^(срок\p{L}*|просроч\p{L}*|контрол\p{L}*|график\p{L}*|задач\p{L}*|отч[её]т\p{L}*|биржа|бирж\p{L}*|excel|хаос|бесплатно|циклограмм\p{L}*|этап\p{L}*|чат\p{L}*|подрядчик\p{L}*|субподрядчик\p{L}*|гип\p{L}*|одном|сразу|видно|telegram|стройконтрол\p{L}*)$/iu;

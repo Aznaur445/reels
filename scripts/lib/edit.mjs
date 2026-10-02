@@ -71,14 +71,20 @@ export function autoCuts(words) {
   return cuts.sort((a, b) => a.word - b.word);
 }
 
+const hookScore = (t) => (/\?/.test(t) ? 4 : 0) + (PAIN.test(t) ? 4 : 0) + (BENEFIT.test(t) ? 1 : 0);
+
 export function suggestHook(sents) {
   if (!sents.length) return null;
   const first = sents[0];
-  const strongFirst = /\?/.test(first.text) || PAIN.test(first.text);
-  if (strongFirst) return {sentence: 0, apply: false, reason: 'начало уже цепляет — оставляю как есть'};
-  const pool = sents.slice(1, Math.max(2, Math.ceil(sents.length * 0.7))).filter((s) => /\?/.test(s.text) || PAIN.test(s.text));
+  if (/\?/.test(first.text) || PAIN.test(first.text)) return {sentence: 0, apply: false, reason: 'начало уже цепляет — оставляю как есть'};
+  // Короткое пустое вступление («Вот смотрите», «Привет») перед сильной фразой — проще убрать его
+  const second = sents[1];
+  if (second && first.text.split(/\s+/).length <= 4 && hookScore(second.text) >= 4) {
+    return {sentence: 1, dropIntro: true, apply: false, reason: `вступление «${first.text}» слабое, а следующая фраза цепляет — предлагаю начать сразу с неё`};
+  }
+  const pool = sents.slice(1, Math.max(2, Math.ceil(sents.length * 0.7))).filter((x) => hookScore(x.text) >= 4);
   if (!pool.length) return {sentence: 0, apply: false, reason: 'сильнее первой фразы ничего нет'};
-  pool.sort((a, b) => b.score - a.score);
+  pool.sort((x, y) => hookScore(y.text) - hookScore(x.text) || x.i - y.i);
   return {sentence: pool[0].i, apply: false, reason: 'первые 2 секунды слабые — предлагаю начать с этой фразы (вопрос/боль)'};
 }
 
@@ -90,8 +96,9 @@ export function buildSegments(words, edit) {
   const cut = new Set(edit.cuts.filter((c) => c.apply).map((c) => c.word));
   const maxPause = edit.maxPause ?? 0.4;
   const pauseTo = edit.pauseTo ?? 0.2;
-  const order = edit.sentences.filter((s) => s.keep).map((s) => s.i);
-  if (edit.hook?.apply && order.includes(edit.hook.sentence)) {
+  const intro = edit.hook?.apply && edit.hook.dropIntro;
+  const order = edit.sentences.filter((s) => s.keep && !(intro && s.i < edit.hook.sentence)).map((s) => s.i);
+  if (edit.hook?.apply && !intro && order.includes(edit.hook.sentence)) {
     order.splice(order.indexOf(edit.hook.sentence), 1);
     order.unshift(edit.hook.sentence);
   }

@@ -80,6 +80,16 @@ if (!fs.existsSync(P('transcript.raw.json')) || args.includes('--retranscribe'))
 // 3. Термины
 const raw = JSON.parse(fs.readFileSync(P('transcript.raw.json'), 'utf8'));
 const {words, log: termLog} = fixTerms(raw.words);
+// Ручные исправления расшифровки: meta.json → "replace": {"последнем": "последним"}
+for (const w of words) {
+  for (const [from, to] of Object.entries(meta.replace ?? {})) {
+    const re = new RegExp(`^([«"(]*)${from}([.,!?…:;»")]*)$`, 'i');
+    if (re.test(w.text)) {
+      termLog.push(`${w.text} → ${to}`);
+      w.text = w.text.replace(re, `$1${to}$2`);
+    }
+  }
+}
 fs.writeFileSync(P('transcript.json'), JSON.stringify({engine: raw.engine, words}, null, 1));
 console.log(`3. Термины исправлены: ${termLog.length ? termLog.join('; ') : 'нечего исправлять'}`);
 
@@ -124,11 +134,14 @@ fs.writeFileSync(sbPath, JSON.stringify(sb, null, 1));
 
 // 6. Отчёт для согласования
 const fmt = (t) => `${Math.floor(t / 60)}:${(t % 60).toFixed(1).padStart(4, '0')}`;
-const cutLines = edit.cuts.map((c) => `- ${c.apply ? '✂️' : '❔'} ${fmt(c.at)} «${c.text}» — ${c.reason}${c.apply ? '' : ' (не вырезано, решите сами)'}`);
-const dropLines = edit.sentences.filter((s) => !s.keep).map((s) => `- ✂️ фраза ${fmt(s.start)}: «${s.text}» — ${s.dropReason ?? 'убрано вручную'}`);
-const pauses = segs.length - 1;
 const hook = edit.hook;
-const hookLine = hook && hook.sentence !== 0 ? `**Хук:** ${hook.reason}: «${edit.sentences[hook.sentence].text}» — ${hook.apply ? 'переставлено в начало' : 'пока НЕ переставлено, скажите «ставь хук»'}` : `**Хук:** ${hook?.reason ?? '—'}`;
+const cutLines = edit.cuts.map((c) => `- ${c.apply ? '✂️' : '❔'} ${fmt(c.at)} «${c.text}» — ${c.reason}${c.apply ? '' : ' (не вырезано, решите сами)'}`);
+const dropLines = edit.sentences.filter((s) => !s.keep || (hook?.apply && hook.dropIntro && s.i < hook.sentence)).map((s) => `- ✂️ фраза ${fmt(s.start)}: «${s.text}» — ${s.dropReason ?? (s.keep ? 'слабое вступление, начинаем с хука' : 'убрано вручную')}`);
+const pauses = segs.length - 1;
+const hookLine =
+  hook && hook.sentence !== 0
+    ? `**Хук:** ${hook.reason}: «${edit.sentences[hook.sentence].text}» — ${hook.apply ? (hook.dropIntro ? 'вступление убрано' : 'переставлено в начало') : 'пока НЕ применено, скажите «ставь хук»'}`
+    : `**Хук:** ${hook?.reason ?? '—'}`;
 const report = `# ${meta.title}
 
 Расшифровка: ${raw.engine}. Речь после монтажа: ${voiceDuration.toFixed(1)} с, ролик целиком: ${sb.duration.toFixed(1)} с.

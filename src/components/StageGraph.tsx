@@ -39,7 +39,7 @@ const edges: [number, number][] = [
 ];
 
 const StageNode: React.FC<{n: Node; i: number; overdue: number}> = ({n, i, overdue}) => {
-  const s = useSpring(4 + i * 3);
+  const s = useSpring(2 + i * 2);
   const frame = useCurrentFrame();
   const st = overdue > 0 ? STATUS.overdue : STATUS[n.status];
   const pulse = overdue > 0 ? 0.5 + 0.5 * Math.sin(frame / 4) : 0;
@@ -77,7 +77,7 @@ const StageNode: React.FC<{n: Node; i: number; overdue: number}> = ({n, i, overd
 
 export const StageGraph: React.FC<
   SceneProps & {project?: string; overdueIndex?: number; overdueAt?: number; overdueText?: string}
-> = ({dur, project = 'Поликлиника на Лесной, капремонт', overdueIndex = 4, overdueAt = 0.42, overdueText = 'Просрочен на 3 дня'}) => {
+> = ({dur, project = 'Поликлиника на Лесной, капремонт', overdueIndex = 4, overdueAt = 0.35, overdueText = 'Просрочен на 3 дня'}) => {
   const frame = useCurrentFrame();
   const over = frac(frame, dur, overdueAt, overdueAt + 0.08);
   const badge = useSpring(Math.round(dur * overdueAt) + 4, {damping: 10, stiffness: 180});
@@ -106,7 +106,7 @@ export const StageGraph: React.FC<
             const y1 = A.y + NH;
             const x2 = B.x + B.w / 2;
             const y2 = B.y;
-            const p = interpolate(frame, [8 + i * 3, 24 + i * 3], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
+            const p = interpolate(frame, [4 + i * 2, 16 + i * 2], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
             const red = a === overdueIndex && over > 0;
             return (
               <path
