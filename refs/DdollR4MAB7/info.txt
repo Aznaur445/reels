@@ -1,0 +1,3 @@
+stream|width=1080|height=1920
+stream|
+format|duration=35.690998
