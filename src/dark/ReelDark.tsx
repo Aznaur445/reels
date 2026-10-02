@@ -32,7 +32,7 @@ const ScreenThumb: React.FC<{screen: string}> = ({screen}) => {
 const SCENES: Record<string, React.FC<any>> = {
   camera: Camera,
   cardStack: CardStack,
-  phoneChat: ({dur, screen = 'project', ...p}: {dur: number; screen?: string}) => <PhoneChat dur={dur} Screen={<ScreenThumb screen={screen} />} {...p} />,
+  phoneChat: ({dur, screen = 'project', ...p}: {dur: number; screen?: string | null}) => <PhoneChat dur={dur} Screen={screen ? <ScreenThumb screen={screen} /> : undefined} {...p} />,
   chaos: ({dur}: {dur: number}) => (
     <div style={{position: 'absolute', top: 330, left: 60}}>
       <Chaos dur={dur} />

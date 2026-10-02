@@ -141,8 +141,18 @@ const Card: React.FC<{delay: number; active: boolean; children: React.ReactNode}
 };
 
 /** Телефон с чатом бота Стройконтроля и экран проекта рядом: цифры «перелетают» в отчёт. */
-export const PhoneChat: React.FC<{dur: number; Screen: React.ReactNode; messages?: {title: string; text: string}[]}> = ({
+export const PhoneChat: React.FC<{
+  dur: number;
+  Screen?: React.ReactNode;
+  messages?: {title: string; text: string}[];
+  header?: {name: string; sub: string; initials?: string};
+  interval?: number;
+  firstAt?: number;
+}> = ({
   Screen,
+  header,
+  interval = 0.9,
+  firstAt = 1.5,
   messages = [
     {title: 'Ежедневный отчёт', text: 'Поликлиника на Лесной: принято 3 задачи, на проверке 2, просрочен 1 этап'},
     {title: 'Напоминание о сроке', text: 'ЭОМ · ЭлектроПроект — сдать на проверку завтра'},
@@ -152,12 +162,15 @@ export const PhoneChat: React.FC<{dur: number; Screen: React.ReactNode; messages
   const {fps} = useVideoConfig();
   const phone = useS(0, {damping: 16});
   const scr = useS(6, {damping: 16});
-  const chips = ['3 принято', '2 на проверке', '1 просрочен'];
+  const chips = Screen ? ['3 принято', '2 на проверке', '1 просрочен'] : [];
+  const px = Screen ? 70 : 300;
   return (
     <div style={{position: 'absolute', inset: 0}}>
-      <div style={{position: 'absolute', left: 500, top: 520, width: 440, height: 300, borderRadius: 14, overflow: 'hidden', boxShadow: '0 30px 60px rgba(0,0,0,0.5)', opacity: scr, transform: `translateX(${(1 - scr) * 120}px)`}}>
-        {Screen}
-      </div>
+      {Screen ? (
+        <div style={{position: 'absolute', left: 500, top: 520, width: 440, height: 300, borderRadius: 14, overflow: 'hidden', boxShadow: '0 30px 60px rgba(0,0,0,0.5)', opacity: scr, transform: `translateX(${(1 - scr) * 120}px)`}}>
+          {Screen}
+        </div>
+      ) : null}
       {chips.map((c, i) => {
         const st = Math.round((0.8 + i * 0.35) * fps);
         const p = interpolate(f, [st, st + 16], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp', easing: (t) => t * t * (3 - 2 * t)});
@@ -170,23 +183,24 @@ export const PhoneChat: React.FC<{dur: number; Screen: React.ReactNode; messages
           </div>
         );
       })}
-      <div style={{position: 'absolute', left: 70, top: 330, width: 410, height: 830, borderRadius: 60, background: '#05080f', padding: 12, boxShadow: '0 40px 90px rgba(0,0,0,0.6)', opacity: phone, transform: `translateY(${(1 - phone) * 160}px)`, fontFamily: FONT}}>
+      <div style={{position: 'absolute', left: px, top: 330, width: 410, height: 830, borderRadius: 60, background: '#05080f', padding: 12, boxShadow: '0 40px 90px rgba(0,0,0,0.6)', opacity: phone, transform: `translateY(${(1 - phone) * 160}px)`, fontFamily: FONT}}>
         <div style={{width: '100%', height: '100%', borderRadius: 50, background: '#111c33', overflow: 'hidden', position: 'relative'}}>
           <div style={{width: 120, height: 30, borderRadius: 20, background: '#05080f', margin: '14px auto 0'}} />
           <div style={{display: 'flex', alignItems: 'center', gap: 14, padding: '16px 22px', borderBottom: '1px solid rgba(255,255,255,0.08)'}}>
-            <div style={{width: 52, height: 52, borderRadius: 99, background: C.accent, display: 'flex', alignItems: 'center', justifyContent: 'center'}}>
-              <svg width={26} height={26} viewBox="0 0 24 24" fill="none" stroke="#fffaf0" strokeWidth={3} strokeLinecap="round" strokeLinejoin="round">
+            <div style={{width: 52, height: 52, borderRadius: 99, background: header ? '#3b5b9a' : C.accent, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontWeight: 800, fontSize: 20}}>
+              {header ? header.initials ?? header.name.slice(0, 2).toUpperCase() : null}
+              <svg style={{display: header ? 'none' : 'block'}} width={26} height={26} viewBox="0 0 24 24" fill="none" stroke="#fffaf0" strokeWidth={3} strokeLinecap="round" strokeLinejoin="round">
                 <path d="M5 13l4 4 10-10" />
               </svg>
             </div>
             <div>
-              <div style={{color: '#fff', fontWeight: 800, fontSize: 22}}>Стройконтроль</div>
-              <div style={{color: D.muted, fontSize: 16}}>бот уведомлений · Telegram</div>
+              <div style={{color: '#fff', fontWeight: 800, fontSize: 22}}>{header?.name ?? 'Стройконтроль'}</div>
+              <div style={{color: D.muted, fontSize: 16}}>{header?.sub ?? 'бот уведомлений · Telegram'}</div>
             </div>
           </div>
           <div style={{padding: 18}}>
             {messages.map((m, i) => (
-              <Bubble key={i} delay={Math.round((1.5 + i * 0.9) * fps)} title={m.title} text={m.text} />
+              <Bubble key={i} delay={Math.round((firstAt + i * interval) * fps)} title={m.title} text={m.text} />
             ))}
           </div>
           <div style={{position: 'absolute', bottom: 20, left: 18, right: 18, display: 'flex', gap: 10, alignItems: 'center'}}>

@@ -379,4 +379,64 @@ export const BUREAU: ScreenDef = {
   },
 };
 
-export const SCREENS: Record<string, ScreenDef> = {project: PROJECT, task: TASK, bureau: BUREAU};
+// ---------------- График выпуска субподрядчика ----------------
+const SW2 = 1400;
+const SH2 = 900;
+const SCOLS = {sheet: 70, date: 760, pct: 1000};
+const SROW_Y = 330;
+const SROW_H = 84;
+const sheets = [
+  {n: 'ЭОМ-1. Общие данные', d: '05.08', p: 100},
+  {n: 'ЭОМ-2. Схемы щитов', d: '12.08', p: 60},
+  {n: 'ЭОМ-3. Планы освещения', d: '19.08', p: 25},
+  {n: 'ЭОМ-4. Силовые сети', d: '26.08', p: 0},
+  {n: 'ЭОМ-5. Кабельный журнал', d: '02.09', p: 0},
+];
+const ScheduleComp: React.FC<ScreenProps> = () => {
+  const {f, fps} = useT();
+  const grow = spring({frame: f - 6, fps, config: {damping: 20}});
+  return (
+    <div style={{position: 'relative', width: SW2, height: SH2, background: C.bg, fontFamily: FONT, color: C.ink}}>
+      <TopBar active="Проекты" w={SW2} />
+      <div style={{position: 'absolute', left: 40, top: 84, fontSize: 16, color: C.muted}}>Проекты / Поликлиника на Лесной / Графики выпуска</div>
+      <div style={{position: 'absolute', left: 40, top: 110, fontSize: 38, fontWeight: 800}}>ЭлектроПроект · раздел ЭОМ</div>
+      <div style={{position: 'absolute', left: 40, top: 166, display: 'flex', gap: 12, alignItems: 'center', fontSize: 18, color: C.muted}}>
+        <span style={{background: '#eef5ef', color: C.done, borderRadius: 99, padding: '4px 14px', fontWeight: 700}}>Согласован</span>
+        график выпуска раздела · этап «Инженерные разделы»
+      </div>
+      <Box r={{x: 40, y: 220, w: 1320, h: 620}}>
+        <div style={{fontSize: 22, fontWeight: 800}}>Листы и сроки</div>
+      </Box>
+      <div style={{position: 'absolute', top: 290, left: 0, width: SW2, fontSize: 16, color: C.muted}}>
+        <span style={{position: 'absolute', left: SCOLS.sheet}}>Лист</span>
+        <span style={{position: 'absolute', left: SCOLS.date}}>Выпуск</span>
+        <span style={{position: 'absolute', left: SCOLS.pct}}>Выполнено</span>
+      </div>
+      {sheets.map((r, i) => (
+        <div key={i} style={{position: 'absolute', left: 52, top: SROW_Y + i * SROW_H, width: 1296, height: SROW_H, borderTop: `1.5px solid ${C.line}`}}>
+          <div style={{position: 'absolute', left: SCOLS.sheet - 52, top: 28, fontSize: 21}}>{r.n}</div>
+          <div style={{position: 'absolute', left: SCOLS.date - 52, top: 28, fontSize: 21}}>{r.d}</div>
+          <div style={{position: 'absolute', left: SCOLS.pct - 52, top: 24, width: 220, height: 34, background: C.soft, borderRadius: 8, overflow: 'hidden'}}>
+            <div style={{width: `${r.p * grow}%`, height: '100%', background: r.p === 100 ? C.done : r.p >= 50 ? C.accent : C.warn}} />
+          </div>
+          <div style={{position: 'absolute', left: SCOLS.pct + 240 - 52, top: 28, fontSize: 21, fontWeight: 700}}>{Math.round(r.p * grow)}%</div>
+        </div>
+      ))}
+    </div>
+  );
+};
+
+export const SCHEDULE: ScreenDef = {
+  w: SW2,
+  h: SH2,
+  Comp: ScheduleComp,
+  regions: {
+    all: {x: 0, y: 0, w: SW2, h: SH2},
+    table: {x: 40, y: 220, w: 1320, h: 620},
+    sheets: {x: SCOLS.sheet - 16, y: 276, w: 440, h: 5 * SROW_H + 70},
+    dates: {x: SCOLS.date - 16, y: 276, w: 140, h: 5 * SROW_H + 70},
+    pct: {x: SCOLS.pct - 16, y: 276, w: 330, h: 5 * SROW_H + 70},
+  },
+};
+
+export const SCREENS: Record<string, ScreenDef> = {project: PROJECT, task: TASK, bureau: BUREAU, schedule: SCHEDULE};
