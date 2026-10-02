@@ -7,5 +7,10 @@
   },
   "replacePhrases": {
     "все бюро": "всё бюро"
-  }
+  },
+  "trim": {
+    "start": 1.2334,
+    "end": 41.7442
+  },
+  "preset": "natural"
 }

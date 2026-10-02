@@ -24,6 +24,19 @@ export const STUDIO =
   'acompressor=threshold=-12dB:ratio=6:attack=1:release=40:makeup=1,' +
   'alimiter=limit=0.89:level=false';
 
+// Бережная обработка (по умолчанию): без шумодава, один мягкий компрессор, лёгкая коррекция тембра.
+// Сильная компрессия и шумоподавление вытягивают эхо комнаты и дают «бункер» — их здесь нет.
+export const NATURAL =
+  'highpass=f=70:poles=2,equalizer=f=280:t=q:w=1.2:g=-2,equalizer=f=4000:t=q:w=1.2:g=2,' +
+  'acompressor=threshold=-20dB:ratio=2:attack=15:release=200:makeup=1';
+
+export const PRESETS = {
+  natural: NATURAL, // по умолчанию
+  denoise: `arnndn=m=${MODEL}:mix=0.4,` + NATURAL, // если на записи заметный шум
+  raw: 'highpass=f=50', // только громкость
+  studio: STUDIO, // сильная обработка: шумодав + плотная компрессия
+};
+
 // Лёгкая обработка (как раньше): спектральное шумоподавление и компрессор
 const LIGHT = 'highpass=f=70,lowpass=f=14000,afftdn=nr=12:nf=-35:tn=1,acompressor=threshold=-21dB:ratio=3:attack=8:release=160:makeup=2';
 
@@ -32,10 +45,33 @@ const TRIM =
   'silenceremove=start_periods=1:start_duration=0.05:start_threshold=-45dB:start_silence=0.12,' +
   'areverse,silenceremove=start_periods=1:start_duration=0.05:start_threshold=-45dB:start_silence=0.25,areverse';
 
-/** Исходник (любой аудио/видео) → audio/clean.wav (48 кГц, моно, −14 LUFS). studio=false — лёгкая обработка. */
-export function cleanAudio(src, out, {studio = true, trim = true} = {}) {
+/** Где на исходнике начинается и заканчивается речь (тишина по краям, порог −45 дБ). */
+export function detectSpeech(src) {
+  const r = execFileSyncStderr(['-hide_banner', '-i', src, '-vn', '-ac', '1', '-af', 'highpass=f=80,afftdn=nr=12:nf=-35:tn=1,silencedetect=n=-45dB:d=0.2', '-f', 'null', '-']);
+  const total = duration(src);
+  const starts = [...r.matchAll(/silence_start: ([\d.]+)/g)].map((m) => Number(m[1]));
+  const ends = [...r.matchAll(/silence_end: ([\d.]+)/g)].map((m) => Number(m[1]));
+  let start = 0;
+  let end = total;
+  if (starts.length && starts[0] < 0.05 && ends.length) start = Math.max(0, ends[0] - 0.12);
+  const lastStart = starts[starts.length - 1];
+  if (lastStart !== undefined && (ends.length < starts.length || ends[ends.length - 1] >= total - 0.05)) end = Math.min(total, lastStart + 0.25);
+  return {start: +start.toFixed(4), end: +end.toFixed(4)};
+}
+
+/** Обрезка по сохранённым точкам + обработка пресетом + −14 LUFS. Повторный вызов с тем же trim даёт ту же длину. */
+export function processVoice(src, out, {preset = 'natural', trim}) {
+  const cut = out.replace(/\.wav$/, '.cut.wav');
+  ff(['-ss', String(trim.start), '-t', String(trim.end - trim.start), '-i', src, '-vn', '-ac', '1', '-ar', '48000', '-c:a', 'pcm_s24le', cut]);
+  const r = cleanAudio(cut, out, {preset, trim: false});
+  fs.rmSync(cut);
+  return r;
+}
+
+/** Исходник (любой аудио/видео) → audio/clean.wav (48 кГц, моно, −14 LUFS). preset: natural | denoise | raw | studio | light. */
+export function cleanAudio(src, out, {preset = 'natural', trim = true} = {}) {
   const tmp = out.replace(/\.wav$/, '.pre.wav');
-  const chain = [studio ? STUDIO : LIGHT, trim ? TRIM : null].filter(Boolean).join(',');
+  const chain = [preset === 'light' ? LIGHT : PRESETS[preset], trim ? TRIM : null].filter(Boolean).join(',');
   ff(['-i', src, '-vn', '-ac', '1', '-ar', '48000', '-af', chain, tmp]);
   // Двухпроходный loudnorm: замер, затем точная нормализация
   const r = execFileSyncStderr(['-hide_banner', '-i', tmp, '-af', 'loudnorm=I=-14:TP=-1.5:LRA=11:print_format=json', '-f', 'null', '-']);

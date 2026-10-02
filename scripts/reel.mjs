@@ -3,13 +3,15 @@
 //
 //   npm run reel -- <путь к аудио/видео> [--name короткое-название] [--keyword ГРАФИК]
 //       обработка звука → расшифровка → исправление терминов → черновой монтаж → черновая раскадровка
+//   npm run reel -- videos/<id> [--preset natural|denoise|raw|studio]
+//       пресет звука: natural (по умолчанию), denoise (+ шумодав), raw (только громкость), studio (плотно)
 //   npm run reel -- videos/<id>
 //       продолжить: после расшифровки из GitHub Actions или после правки edit.json
 //       (монтаж и раскадровка пересобираются; storyboard.json с "locked": true не трогается)
 import {execFileSync, spawnSync} from 'node:child_process';
 import fs from 'node:fs';
 import path from 'node:path';
-import {cleanAudio, duration, measureLufs, spliceAudio} from './lib/audio.mjs';
+import {detectSpeech, duration, measureLufs, processVoice, spliceAudio} from './lib/audio.mjs';
 import {autoCuts, buildSegments, fitToLimit, remapWords, sentences, suggestHook} from './lib/edit.mjs';
 import {draftStoryboard, storyboardTable} from './lib/storyboard.mjs';
 import {fixTerms} from './lib/terms.mjs';
@@ -56,16 +58,18 @@ console.log(`\n▶ Ролик ${id}  (${path.relative(process.cwd(), dir)})`);
 // 1. Звук
 const source = fs.readdirSync(P('source')).filter((f) => !f.startsWith('.')).map((f) => P('source', f))[0];
 if (!source) throw new Error('В папке source/ нет исходника');
-if (args.includes('--restudio') && fs.existsSync(P('audio', 'clean.wav'))) {
-  // Студийная обработка поверх уже обрезанной дорожки: длина та же, тайминги расшифровки не сдвигаются
-  console.log('1. Студийная обработка audio/clean.wav (прежняя версия — audio/clean-light.wav)…');
-  if (!fs.existsSync(P('audio', 'clean-light.wav'))) fs.copyFileSync(P('audio', 'clean.wav'), P('audio', 'clean-light.wav'));
-  cleanAudio(P('audio', 'clean-light.wav'), P('audio', 'clean.wav'), {studio: true, trim: false});
-  console.log(`   audio/clean.wav ${measureLufs(P('audio', 'clean.wav')).toFixed(1)} LUFS, ${duration(P('audio', 'clean.wav')).toFixed(2)} с`);
-} else if (!fs.existsSync(P('audio', 'clean.wav')) || args.includes('--reclean')) {
-  console.log('1. Студийная обработка звука: RNNoise, EQ, де-эссер, компрессия, обрезка тишины, −14 LUFS…');
-  const r = cleanAudio(source, P('audio', 'clean.wav'), {studio: !args.includes('--light')});
-  console.log(`   исходник ${r.inputLufs.toFixed(1)} LUFS → audio/clean.wav ${measureLufs(P('audio', 'clean.wav')).toFixed(1)} LUFS, ${duration(P('audio', 'clean.wav')).toFixed(1)} с`);
+const preset = opt('--preset') ?? meta.preset ?? 'natural';
+const reprocess = args.includes('--reprocess') || (opt('--preset') && opt('--preset') !== meta.preset);
+if (!fs.existsSync(P('audio', 'clean.wav')) || args.includes('--reclean') || reprocess) {
+  if (!meta.trim || args.includes('--reclean')) {
+    if (fs.existsSync(P('transcript.raw.json')) && !args.includes('--reclean')) throw new Error('Нет meta.trim: укажите точки обрезки в meta.json, иначе тайминги расшифровки собьются');
+    meta.trim = detectSpeech(source);
+  }
+  meta.preset = preset;
+  fs.writeFileSync(P('meta.json'), JSON.stringify(meta, null, 2));
+  console.log(`1. Обработка звука (${preset}): обрезка тишины ${meta.trim.start}–${meta.trim.end} с, −14 LUFS…`);
+  const r = processVoice(source, P('audio', 'clean.wav'), {preset, trim: meta.trim});
+  console.log(`   исходник ${r.inputLufs.toFixed(1)} LUFS → audio/clean.wav ${measureLufs(P('audio', 'clean.wav')).toFixed(1)} LUFS, ${duration(P('audio', 'clean.wav')).toFixed(2)} с`);
 } else console.log('1. Звук уже обработан: audio/clean.wav');
 
 // 2. Расшифровка
