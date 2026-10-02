@@ -19,7 +19,7 @@ import {C, FONT, VISUAL} from './theme';
 import type {Scene, SceneType, Storyboard, Word} from './types';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-const REGISTRY: Record<SceneType, React.FC<any>> = {
+const REGISTRY: Partial<Record<SceneType, React.FC<any>>> = {
   stageGraph: StageGraph,
   taskCard: TaskCard,
   scheduleBars: ScheduleBars,

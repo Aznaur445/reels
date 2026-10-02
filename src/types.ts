@@ -7,6 +7,9 @@ export type Word = {
 };
 
 export type SceneType =
+  | 'camera'
+  | 'cardStack'
+  | 'phoneChat'
   | 'stageGraph'
   | 'taskCard'
   | 'scheduleBars'
@@ -43,7 +46,12 @@ export type Cta = {
   tail?: string;
 };
 
+export type Overlay = {type: 'hookTitle' | 'pill' | 'numberBadge'; from: number; to: number; props?: Record<string, unknown>};
+
 export type Storyboard = {
+  style?: 'light' | 'dark'; // dark — монтаж как в референсе (тёмный фон, камера с подсветкой)
+  overlays?: Overlay[];
+  accentWords?: string[]; // начала слов, которые в субтитрах красятся акцентом
   id: string;
   title: string;
   fps: number;

@@ -47,3 +47,18 @@ export const Cover: React.FC<{sb: Storyboard}> = ({sb}) => {
     </AbsoluteFill>
   );
 };
+
+/** Обложка в стиле референса: тёмный фон, заголовок заглавными, экран сервиса. */
+export const CoverDark: React.FC<{sb: Storyboard}> = ({sb}) => {
+  const parts = sb.cover.title.split(/(\*[^*]+\*)/);
+  return (
+    <AbsoluteFill style={{background: 'radial-gradient(ellipse 90% 60% at 50% 42%, #16294f 0%, #0a1530 70%)', fontFamily: 'Montserrat, sans-serif'}}>
+      <div style={{position: 'absolute', top: 330, left: 60, width: 900, textAlign: 'center', fontSize: 84, fontWeight: 900, lineHeight: 1.08, color: '#fff', textTransform: 'uppercase'}}>
+        {parts.map((p, i) => (p.startsWith('*') ? <span key={i} style={{color: '#ff5a2e'}}>{p.slice(1, -1)}</span> : <span key={i}>{p}</span>))}
+      </div>
+      <div style={{position: 'absolute', left: 90, width: 840, top: 980, height: 470, borderRadius: 18, overflow: 'hidden', boxShadow: '0 40px 90px rgba(0,0,0,0.6), 0 0 0 5px #ff5a2e'}}>
+        <Img src={staticFile(`screens/${sb.cover.screen ?? 'graph.jpg'}`)} style={{width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'left top'}} />
+      </div>
+    </AbsoluteFill>
+  );
+};
