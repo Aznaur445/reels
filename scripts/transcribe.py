@@ -17,17 +17,34 @@ def load_env():
                 k, v = line.split('=', 1)
                 os.environ.setdefault(k.strip(), v.strip())
 
+def max_gap(words, duration):
+    pts = [0.0] + [x for w in words for x in (w['start'], w['end'])] + [duration or 0]
+    return max((b - a for a, b in zip(pts[::2], pts[1::2])), default=0)
+
 def local(path, model_name):
     from faster_whisper import WhisperModel
     model = WhisperModel(model_name, device='cpu', compute_type='int8')
-    segments, info = model.transcribe(path, language='ru', word_timestamps=True, initial_prompt=PROMPT,
-                                      beam_size=5, vad_filter=False, condition_on_previous_text=False)
-    words = []
-    for seg in segments:
-        for w in seg.words or []:
-            words.append({'text': w.word.strip(), 'start': round(w.start, 3), 'end': round(w.end, 3),
-                          'prob': round(w.probability, 3)})
-    return {'engine': f'faster-whisper {model_name}', 'language': info.language, 'duration': info.duration, 'words': words}
+    # Первый проход — без VAD, чтобы слышать «э-э» и оговорки. Если Whisper «проглотил» кусок речи
+    # (дыра больше 4 с), повторяем с VAD и контекстом и берём вариант, где слов больше.
+    passes = [dict(vad_filter=False, condition_on_previous_text=False),
+              dict(vad_filter=True, condition_on_previous_text=True, vad_parameters=dict(min_silence_duration_ms=400))]
+    best = None
+    for opts in passes:
+        segments, info = model.transcribe(path, language='ru', word_timestamps=True, initial_prompt=PROMPT, beam_size=5, **opts)
+        words = []
+        for seg in segments:
+            for w in seg.words or []:
+                words.append({'text': w.word.strip(), 'start': round(w.start, 3), 'end': round(w.end, 3),
+                              'prob': round(w.probability, 3)})
+        res = {'engine': f'faster-whisper {model_name}' + (' +vad' if opts['vad_filter'] else ''), 'language': info.language,
+               'duration': info.duration, 'words': words}
+        if best is None or len(words) > len(best['words']):
+            best = res
+        gap = max_gap(words, info.duration)
+        if gap <= 4:
+            break
+        print(f'Найдена дыра в расшифровке {gap:.1f} с — повторяю с VAD', flush=True)
+    return best
 
 def api(path):
     key = os.environ.get('OPENAI_API_KEY')
@@ -62,6 +79,8 @@ def main():
     args = sys.argv[1:]
     path, out = args[0], args[1]
     model = os.environ.get('WHISPER_MODEL', 'large-v3')
+    if '--force' in args and os.path.exists(out):
+        os.remove(out)
     if '--model' in args:
         model = args[args.index('--model') + 1]
     errors = []
