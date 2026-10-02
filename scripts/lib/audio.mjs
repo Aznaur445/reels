@@ -27,6 +27,13 @@ export function cleanAudio(src, out) {
     `measured_LRA=${m.input_lra}:measured_thresh=${m.input_thresh}:offset=${m.target_offset}:linear=true`;
   ff(['-i', tmp, '-af', ln, '-ar', '48000', '-c:a', 'pcm_s16le', out]);
   fs.rmSync(tmp);
+  // loudnorm в линейном режиме может недотянуть из-за пиков — доводим усилением и лимитером
+  const got = measureLufs(out);
+  if (Math.abs(got + 14) > 0.3) {
+    const fix = out.replace(/\.wav$/, '.fix.wav');
+    ff(['-i', out, '-af', `volume=${(-14 - got).toFixed(2)}dB,alimiter=limit=0.84:attack=3:release=50:level=false`, '-ar', '48000', '-c:a', 'pcm_s16le', fix]);
+    fs.renameSync(fix, out);
+  }
   return {inputLufs: Number(m.input_i)};
 }
 
