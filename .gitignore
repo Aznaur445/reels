@@ -1,0 +1,9 @@
+node_modules/
+out/
+.env
+.env.*
+!.env.example
+*.log
+.cache/
+__pycache__/
+videos/*/tmp/

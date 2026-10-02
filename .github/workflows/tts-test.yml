@@ -1,0 +1,38 @@
+name: Тестовая озвучка
+
+# Только для проверки шаблона: синтез речи из videos/<id>/tts.txt в videos/<id>/source/tts.mp3.
+# Настоящие ролики делаются только на вашем голосе.
+on:
+  push:
+    paths: ['videos/*/tts.txt']
+
+permissions:
+  contents: write
+
+jobs:
+  tts:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: pip install edge-tts
+      - name: Синтез
+        run: |
+          for t in videos/*/tts.txt; do
+            d="$(dirname "$t")"
+            [ -f "$d/source/tts.mp3" ] && continue
+            mkdir -p "$d/source"
+            voice="$(sed -n 's/^#voice: *//p' "$t")"; voice="${voice:-ru-RU-DmitryNeural}"
+            grep -v '^#' "$t" > /tmp/text.txt
+            for i in 1 2 3 4; do edge-tts --voice "$voice" --rate=+5% -f /tmp/text.txt --write-media "$d/source/tts.mp3" && break; sleep 5; done
+          done
+      - name: Коммит
+        run: |
+          git config user.name "github-actions"
+          git config user.email "actions@github.com"
+          git add videos/*/source/tts.mp3 2>/dev/null || true
+          if git diff --cached --quiet; then exit 0; fi
+          git commit -m "Тестовая озвучка"
+          for i in 1 2 3 4; do git pull --rebase -q && git push && break; sleep $((i*5)); done

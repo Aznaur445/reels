@@ -1,0 +1,42 @@
+{
+  "name": "stroykontrol-reels",
+  "version": "1.0.0",
+  "description": "Продающие рилсы «Стройконтроля» на Remotion",
+  "main": "index.js",
+  "scripts": {
+    "reel": "node scripts/reel.mjs",
+    "studio": "remotion studio src/index.ts",
+    "render": "node scripts/render.mjs",
+    "showcase": "remotion render src/index.ts showcase out/showcase.mp4",
+    "music": "python3 scripts/make_music.py public/music/podlozhka.mp3",
+    "typecheck": "tsc --noEmit"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Aznaur445/reels.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Aznaur445/reels/issues"
+  },
+  "homepage": "https://github.com/Aznaur445/reels#readme",
+  "dependencies": {
+    "@remotion/cli": "^4.0.532",
+    "@remotion/fonts": "^4.0.532",
+    "@remotion/media-utils": "^4.0.532",
+    "react": "^19.3.0",
+    "react-dom": "^19.3.0",
+    "remotion": "^4.0.532"
+  },
+  "devDependencies": {
+    "@fontsource/manrope": "^5.3.0",
+    "@types/node": "^26.6.4",
+    "@types/react": "^19.3.0",
+    "@types/webpack-env": "^1.18.8",
+    "typescript": "^7.0.2"
+  },
+  "private": true,
+  "type": "module"
+}
