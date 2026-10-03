@@ -7,6 +7,14 @@ export type Word = {
 };
 
 export type SceneType =
+  | 'office3d'
+  | 'calendar3d'
+  | 'stages3d'
+  | 'meeting3d'
+  | 'clock3d'
+  | 'vacation3d'
+  | 'city3d'
+  | 'phone3d'
   | 'dialogue'
   | 'calendar'
   | 'clock'
@@ -57,7 +65,7 @@ export type Cta = {
   tail?: string;
 };
 
-export type Overlay = {type: 'hookTitle' | 'pill' | 'numberBadge' | 'stamp' | 'flash'; from: number; to: number; props?: Record<string, unknown>};
+export type Overlay = {type: 'hookTitle' | 'pill' | 'numberBadge' | 'stamp' | 'flash' | 'countdown'; from: number; to: number; props?: Record<string, unknown>};
 
 export type Storyboard = {
   style?: 'light' | 'dark'; // dark — монтаж как в референсе (тёмный фон, камера с подсветкой)

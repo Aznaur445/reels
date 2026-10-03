@@ -7,6 +7,7 @@ import {Camera} from './Camera';
 import {CardStack, CtaDark, HookTitle, NumberBadge, PhoneChat, Pill} from './Overlays';
 import {SCREENS} from './screens';
 import {SubtitlesDark} from './SubtitlesDark';
+import {Calendar3D, City3D, Clock3D, Meeting3D, Office3D, Phone3D, Stages3D, Vacation3D} from '../three/Scenes3D';
 import {BigText, Calendar, Clock, Countdown, Dialogue, FireGrid, Growth, Meeting, Stamp, Vacation} from './Story';
 import {D} from './theme';
 
@@ -57,6 +58,14 @@ const ScreenThumb: React.FC<{screen: string}> = ({screen}) => {
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const SCENES: Record<string, React.FC<any>> = {
+  office3d: Office3D,
+  calendar3d: Calendar3D,
+  stages3d: Stages3D,
+  meeting3d: Meeting3D,
+  clock3d: Clock3D,
+  vacation3d: Vacation3D,
+  city3d: City3D,
+  phone3d: Phone3D,
   dialogue: Dialogue,
   calendar: Calendar,
   clock: Clock,
@@ -86,7 +95,7 @@ const SCENES: Record<string, React.FC<any>> = {
   ),
 };
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-const OVERLAYS: Record<string, React.FC<any>> = {hookTitle: HookTitle, pill: Pill, numberBadge: NumberBadge, stamp: Stamp, flash: Flash};
+const OVERLAYS: Record<string, React.FC<any>> = {hookTitle: HookTitle, pill: Pill, numberBadge: NumberBadge, stamp: Stamp, flash: Flash, countdown: Countdown};
 
 const useDucking = (words: Word[], total: number, fps: number, under: number, open: number) =>
   useMemo(() => {
@@ -138,7 +147,7 @@ export const ReelDark: React.FC<{sb: Storyboard}> = ({sb}) => {
           </Sequence>
         ) : null;
       })}
-      <SubtitlesDark words={sb.words} hideFrom={sb.cta.from} accent={sb.accentWords} />
+      <SubtitlesDark words={sb.words} hideFrom={sb.cta.from} accent={sb.accentWords} wordRanges={sb.scenes.filter((x) => x.type.endsWith('3d')).map((x) => [x.from, x.to] as [number, number])} />
       <Sequence from={ctaFrom} durationInFrames={Math.max(1, durationInFrames - ctaFrom)} layout="none">
         <AbsoluteFill>
           <Camera dur={durationInFrames - ctaFrom} screen="project" shots={[{at: 0, focus: 'all', width: 900}]} dimAll={0.7} cy={830} clip={false} />
