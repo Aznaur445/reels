@@ -29,7 +29,7 @@ export const Camera: React.FC<{dur: number; screen: string; shots: Shot[]; scree
   cy = 790,
   cx = 520,
   dimAll = 0,
-  clip = [300, 1330],
+  clip = [290, 1350],
 }) => {
   const frame = useCurrentFrame();
   const {fps} = useVideoConfig();

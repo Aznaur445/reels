@@ -103,7 +103,7 @@ for (const w of words) {
 // Исправления по фразам: meta.json → "replacePhrases": {"все бюро": "всё бюро"} (по словам, пунктуация сохраняется)
 for (const [from, to] of Object.entries(meta.replacePhrases ?? {})) {
   const a = from.split(' ');
-  const b = to.split(' ');
+  const b = to.split(' ').map((x) => x.replace(/\+/g, ' ')); // «вы+—» — пробел внутри одного слова
   for (let i = 0; i + a.length <= words.length; i++) {
     if (a.every((x, k) => words[i + k].text.replace(/[.,!?…:;—–\s]+$/, '').toLowerCase() === x.toLowerCase())) {
       a.forEach((_, k) => (words[i + k].text = words[i + k].text.replace(/^[^.,!?…:;—–\s]+/, b[k] ?? '')));

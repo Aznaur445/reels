@@ -7,7 +7,34 @@ import {Camera} from './Camera';
 import {CardStack, CtaDark, HookTitle, NumberBadge, PhoneChat, Pill} from './Overlays';
 import {SCREENS} from './screens';
 import {SubtitlesDark} from './SubtitlesDark';
+import {BigText, Calendar, Clock, Countdown, Dialogue, FireGrid, Growth, Meeting, Stamp, Vacation} from './Story';
 import {D} from './theme';
+
+/** Переход «вжух»: сцена влетает со смазом и лёгким поворотом, в конце быстро уходит. */
+const Whip: React.FC<{dur: number; dir: number; off?: boolean; children: React.ReactNode}> = ({dur, dir, off, children}) => {
+  const f = useCurrentFrame();
+  if (off) return <AbsoluteFill>{children}</AbsoluteFill>;
+  const inP = Math.min(1, f / 7);
+  const e = 1 - Math.pow(1 - inP, 3);
+  const outP = Math.max(0, (f - (dur - 4)) / 4);
+  return (
+    <AbsoluteFill
+      style={{
+        transform: `translateX(${(1 - e) * 140 * dir - outP * 90 * dir}px) scale(${1.08 - 0.08 * e + outP * 0.04}) rotate(${(1 - e) * 1.5 * dir}deg)`,
+        filter: `blur(${(1 - e) * 14 + outP * 8}px)`,
+        opacity: Math.min(1, e * 1.4) * (1 - outP * 0.6),
+      }}
+    >
+      {children}
+    </AbsoluteFill>
+  );
+};
+
+/** Вспышка на ударе. */
+const Flash: React.FC<{dur: number; color?: string}> = ({color = '#ffffff'}) => {
+  const f = useCurrentFrame();
+  return <AbsoluteFill style={{background: color, opacity: Math.max(0, 0.55 - f * 0.12), pointerEvents: 'none'}} />;
+};
 
 const BgDark: React.FC = () => {
   const f = useCurrentFrame();
@@ -30,6 +57,15 @@ const ScreenThumb: React.FC<{screen: string}> = ({screen}) => {
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const SCENES: Record<string, React.FC<any>> = {
+  dialogue: Dialogue,
+  calendar: Calendar,
+  clock: Clock,
+  meeting: Meeting,
+  vacation: Vacation,
+  growth: Growth,
+  fireGrid: FireGrid,
+  countdown: Countdown,
+  bigText: BigText,
   camera: Camera,
   cardStack: CardStack,
   phoneChat: ({dur, screen = 'project', ...p}: {dur: number; screen?: string | null}) => <PhoneChat dur={dur} Screen={screen ? <ScreenThumb screen={screen} /> : undefined} {...p} />,
@@ -50,7 +86,7 @@ const SCENES: Record<string, React.FC<any>> = {
   ),
 };
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-const OVERLAYS: Record<string, React.FC<any>> = {hookTitle: HookTitle, pill: Pill, numberBadge: NumberBadge};
+const OVERLAYS: Record<string, React.FC<any>> = {hookTitle: HookTitle, pill: Pill, numberBadge: NumberBadge, stamp: Stamp, flash: Flash};
 
 const useDucking = (words: Word[], total: number, fps: number, under: number, open: number) =>
   useMemo(() => {
@@ -84,9 +120,9 @@ export const ReelDark: React.FC<{sb: Storyboard}> = ({sb}) => {
         const dur = Math.max(1, fr(s.to) - from);
         return Comp ? (
           <Sequence key={i} from={from} durationInFrames={dur} layout="none">
-            <AbsoluteFill>
+            <Whip dur={dur} dir={i % 2 ? -1 : 1} off={(s as {whip?: boolean}).whip === false}>
               <Comp dur={dur} {...(s.props ?? {})} />
-            </AbsoluteFill>
+            </Whip>
           </Sequence>
         ) : null;
       })}

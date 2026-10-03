@@ -7,6 +7,17 @@ export type Word = {
 };
 
 export type SceneType =
+  | 'dialogue'
+  | 'calendar'
+  | 'clock'
+  | 'meeting'
+  | 'vacation'
+  | 'growth'
+  | 'fireGrid'
+  | 'countdown'
+  | 'bigText'
+  | 'orderFeed'
+  | 'executorCard'
   | 'camera'
   | 'cardStack'
   | 'phoneChat'
@@ -46,7 +57,7 @@ export type Cta = {
   tail?: string;
 };
 
-export type Overlay = {type: 'hookTitle' | 'pill' | 'numberBadge'; from: number; to: number; props?: Record<string, unknown>};
+export type Overlay = {type: 'hookTitle' | 'pill' | 'numberBadge' | 'stamp' | 'flash'; from: number; to: number; props?: Record<string, unknown>};
 
 export type Storyboard = {
   style?: 'light' | 'dark'; // dark — монтаж как в референсе (тёмный фон, камера с подсветкой)

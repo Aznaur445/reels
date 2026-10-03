@@ -216,6 +216,7 @@ export const PROJECT: ScreenDef = {
     overdueZone: {x: nodeRect(OVERDUE).x - 300, y: GRAPH.y + 60, w: 760, h: 270},
     cyclo: CYCLO,
     cycloLate: {x: CYCLO.x + 26, y: CYCLO.y + 290, w: CYCLO.w - 52, h: 50},
+    cycloRows: {x: CYCLO.x + 20, y: CYCLO.y + 100, w: 900, h: 250},
   },
 };
 
@@ -384,6 +385,8 @@ export const BUREAU: ScreenDef = {
     late1: rowRect(0),
     late2: rowRect(2),
     lateRows: {x: 52, y: ROW_Y, w: 1296, h: ROW_H * 3},
+    top3: {x: 40, y: 250, w: 1000, h: 3 * ROW_H + 90},
+    leftRows: {x: 40, y: 250, w: 1000, h: 6 * ROW_H + 90},
   },
 };
 
