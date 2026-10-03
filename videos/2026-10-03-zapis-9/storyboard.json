@@ -379,7 +379,7 @@
  "locked": true,
  "cover": {
   "title": "Какой из ваших проектов *горит прямо сейчас?*",
-  "screen": "hero.jpg"
+  "screen": "graph.jpg"
  },
  "cta": {
   "keyword": "ГОРИТ",
