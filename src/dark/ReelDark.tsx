@@ -8,6 +8,7 @@ import {CardStack, CtaDark, HookTitle, NumberBadge, PhoneChat, Pill} from './Ove
 import {SCREENS} from './screens';
 import {SubtitlesDark} from './SubtitlesDark';
 import {Calendar3D, City3D, Clock3D, Meeting3D, Office3D, Phone3D, Stages3D, Vacation3D} from '../three/Scenes3D';
+import {Dominoes, EmptyDesk, Meeting12, NightDesk, Queue} from '../three/RealScenes';
 import {BigText, Calendar, Clock, Countdown, Dialogue, FireGrid, Growth, Meeting, Stamp, Vacation} from './Story';
 import {D} from './theme';
 
@@ -66,6 +67,11 @@ const SCENES: Record<string, React.FC<any>> = {
   vacation3d: Vacation3D,
   city3d: City3D,
   phone3d: Phone3D,
+  meet12_3d: Meeting12,
+  nightdesk3d: NightDesk,
+  emptydesk3d: EmptyDesk,
+  queue3d: Queue,
+  dominoes3d: Dominoes,
   dialogue: Dialogue,
   calendar: Calendar,
   clock: Clock,

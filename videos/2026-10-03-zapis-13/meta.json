@@ -4,5 +4,8 @@
     "start": 0.1434,
     "end": 39.8665
   },
-  "preset": "natural"
+  "preset": "natural",
+  "textFix": {
+    "ГИБДД": "ГИП"
+  }
 }

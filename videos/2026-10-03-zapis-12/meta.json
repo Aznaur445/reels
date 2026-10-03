@@ -4,5 +4,8 @@
     "start": 0.2188,
     "end": 36.9494
   },
-  "preset": "natural"
+  "preset": "natural",
+  "textFix": {
+    "Никто.": "никто."
+  }
 }

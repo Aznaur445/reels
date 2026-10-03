@@ -5,6 +5,7 @@ import {Reel} from './Reel';
 import {ReelDark} from './dark/ReelDark';
 import {SHOWCASE_FRAMES, Showcase} from './Showcase';
 import {GALLERY3D_FRAMES, Gallery3D} from './three/Gallery';
+import {REALGALLERY_FRAMES, RealGallery} from './three/RealGallery';
 import {fontsReady} from './fonts';
 import {FPS, H, W} from './theme';
 import type {Storyboard} from './types';
@@ -32,6 +33,7 @@ export const Root: React.FC = () => (
         <Still id={`${sb.id}-cover`} component={sb.style === 'dark' ? CoverDark : Cover} width={W} height={H} defaultProps={{sb}} />
       </React.Fragment>
     ))}
+    <Composition id="realgallery" component={RealGallery} durationInFrames={REALGALLERY_FRAMES} fps={FPS} width={W} height={H} />
     <Composition id="gallery3d" component={Gallery3D} durationInFrames={GALLERY3D_FRAMES} fps={FPS} width={W} height={H} />
     <Composition id="showcase" component={Showcase} durationInFrames={SHOWCASE_FRAMES} fps={FPS} width={W} height={H} />
   </>

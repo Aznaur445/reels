@@ -4,5 +4,6 @@
     "start": 1.5581,
     "end": 37.3125
   },
-  "preset": "natural"
+  "preset": "natural",
+  "textFix": {}
 }
