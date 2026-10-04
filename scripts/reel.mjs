@@ -156,6 +156,10 @@ const segs = buildSegments(words, edit);
 const parts = spliceAudio(P('audio', 'clean.wav'), segs, P('audio', 'voice.wav'), edit.crossfade ?? 0.04, P('tmp'));
 const voiceDuration = duration(P('audio', 'voice.wav'));
 const edited = remapWords(words, parts);
+// Для видеоисходника: какие куски исходника и где звучат в смонтированном ролике (склейки видео = склейки звука)
+const trimStart = meta.trim?.start ?? 0;
+const segments = parts.map((p) => ({src: +(trimStart + p.start).toFixed(3), dur: +(p.end - p.start).toFixed(3), at: +p.offset.toFixed(3)}));
+const person = fs.existsSync(P('video', 'person.webm')) ? `videos/${id}/video/person.webm` : undefined;
 console.log(`   речь: ${duration(P('audio', 'clean.wav')).toFixed(1)} с → после монтажа ${voiceDuration.toFixed(1)} с, склеек: ${segs.length - 1}`);
 
 // 5. Раскадровка
@@ -163,10 +167,10 @@ let sb;
 const sbPath = P('storyboard.json');
 const old = fs.existsSync(sbPath) ? JSON.parse(fs.readFileSync(sbPath, 'utf8')) : null;
 if (old?.locked) {
-  sb = {...old, words: edited, voiceDuration: +voiceDuration.toFixed(3)};
+  sb = {...old, words: edited, voiceDuration: +voiceDuration.toFixed(3), segments, person};
   console.log('5. storyboard.json заблокирован ("locked": true) — обновлены только слова и длина речи');
 } else {
-  sb = draftStoryboard({id, title: meta.title, words: edited, voiceDuration, keyword: meta.keyword, limit: LIMIT});
+  sb = {...draftStoryboard({id, title: meta.title, words: edited, voiceDuration, keyword: meta.keyword, limit: LIMIT}), segments, person};
   console.log('5. Черновая раскадровка: storyboard.json');
 }
 fs.writeFileSync(sbPath, JSON.stringify(sb, null, 1));

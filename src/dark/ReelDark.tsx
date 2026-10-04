@@ -7,6 +7,7 @@ import {Camera} from './Camera';
 import {CardStack, CtaDark, HookTitle, NumberBadge, PhoneChat, Pill} from './Overlays';
 import {SCREENS} from './screens';
 import {SubtitlesDark} from './SubtitlesDark';
+import {PersonLayer} from './Person';
 import {Calendar3D, City3D, Clock3D, Meeting3D, Office3D, Phone3D, Stages3D, Vacation3D} from '../three/Scenes3D';
 import {Dominoes, EmptyDesk, Meeting12, NightDesk, Queue} from '../three/RealScenes';
 import {BigText, Calendar, Clock, Countdown, Dialogue, FireGrid, Growth, Meeting, Stamp, Vacation} from './Story';
@@ -59,6 +60,7 @@ const ScreenThumb: React.FC<{screen: string}> = ({screen}) => {
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const SCENES: Record<string, React.FC<any>> = {
+  talk: () => null,
   office3d: Office3D,
   calendar3d: Calendar3D,
   stages3d: Stages3D,
@@ -129,6 +131,7 @@ export const ReelDark: React.FC<{sb: Storyboard}> = ({sb}) => {
   return (
     <AbsoluteFill style={{color: D.white, fontFamily: FONT}}>
       <BgDark />
+      <PersonLayer sb={sb} layer="back" />
       {sb.scenes.map((s, i) => {
         const Comp = SCENES[s.type];
         const from = fr(s.from);
@@ -141,6 +144,7 @@ export const ReelDark: React.FC<{sb: Storyboard}> = ({sb}) => {
           </Sequence>
         ) : null;
       })}
+      <PersonLayer sb={sb} layer="front" />
       {(sb.overlays ?? []).map((o, i) => {
         const Comp = OVERLAYS[o.type];
         const from = fr(o.from);

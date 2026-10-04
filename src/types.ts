@@ -16,6 +16,7 @@ export type SceneType =
   | 'city3d'
   | 'phone3d'
   | 'meet12_3d'
+  | 'talk'
   | 'nightdesk3d'
   | 'emptydesk3d'
   | 'queue3d'
@@ -88,4 +89,6 @@ export type Storyboard = {
   kinetic: Kinetic[];
   cta: Cta;
   cover: {title: string; subtitle?: string; screen?: string};
+  segments?: {src: number; dur: number; at: number}[]; // видеоисходник: куски исходника (src, сек) и их место в ролике (at)
+  person?: string; // видео человека без фона (VP9 с альфой), путь относительно public/
 };
