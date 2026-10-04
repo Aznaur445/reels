@@ -8,8 +8,8 @@ import {D} from './theme';
 type Pose = {s: number; y: number; o: number; ox: number};
 const POSES = {
   talk: {s: 1, y: 0, o: 1, ox: 0},
-  split: {s: 0.56, y: 0, o: 1, ox: 0},
-  hide: {s: 0.56, y: 260, o: 0, ox: 0},
+  split: {s: 0.5, y: 120, o: 1, ox: 0},
+  hide: {s: 0.5, y: 380, o: 0, ox: 0},
 };
 const modeOf = (type: string, props?: Record<string, unknown>) => (type === 'talk' ? 'talk' : ((props?.person as string) ?? 'split')) as keyof typeof POSES;
 
@@ -27,10 +27,16 @@ export const PersonLayer: React.FC<{sb: Storyboard; layer: 'back' | 'front'}> = 
     const end = t >= sb.cta.from;
     const cur = idx < 0 ? null : scenes[idx];
     const tgt: Pose = end ? POSES.hide : cur ? {...POSES[modeOf(cur.type, cur.props)]} : POSES.talk;
-    if (cur?.type === 'talk') tgt.s = (cur.props?.zoom as number) ?? 1;
+    if (cur?.type === 'talk') {
+      tgt.s = (cur.props?.zoom as number) ?? 1;
+      tgt.y = (cur.props?.y as number) ?? 0;
+    }
     const prev = idx > 0 ? scenes[idx - 1] : null;
     const from: Pose = prev ? {...POSES[modeOf(prev.type, prev.props)]} : tgt;
-    if (prev?.type === 'talk') from.s = (prev.props?.zoom as number) ?? 1;
+    if (prev?.type === 'talk') {
+      from.s = (prev.props?.zoom as number) ?? 1;
+      from.y = (prev.props?.y as number) ?? 0;
+    }
     const start = end ? sb.cta.from : cur?.from ?? 0;
     // talk → talk: резкая смена крупности (джамп-кат), остальное — плавный переход
     const jump = cur?.type === 'talk' && prev?.type === 'talk';
@@ -39,7 +45,7 @@ export const PersonLayer: React.FC<{sb: Storyboard; layer: 'back' | 'front'}> = 
   }, [t, scenes, sb.cta.from]);
 
   if (!sb.person || !sb.segments) return null;
-  const talkK = Math.max(0, Math.min(1, (pose.s - 0.56) / 0.44)); // 1 — во весь кадр, 0 — split
+  const talkK = Math.max(0, Math.min(1, (pose.s - 0.5) / 0.5)); // 1 — во весь кадр, 0 — split
   if (layer === 'back') {
     // Задник для «говорящей головы»: размытый экран сервиса и тёплый контровой свет за человеком
     const Scr = SCREENS.project;

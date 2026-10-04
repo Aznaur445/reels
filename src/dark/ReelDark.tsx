@@ -157,7 +157,7 @@ export const ReelDark: React.FC<{sb: Storyboard}> = ({sb}) => {
           </Sequence>
         ) : null;
       })}
-      <SubtitlesDark words={sb.words} hideFrom={sb.cta.from} accent={sb.accentWords} wordRanges={sb.scenes.filter((x) => x.type.endsWith('3d')).map((x) => [x.from, x.to] as [number, number])} />
+      <SubtitlesDark words={sb.words} hideFrom={sb.cta.from} accent={sb.accentWords} wordRanges={sb.scenes.filter((x) => x.type.endsWith('3d')).map((x) => [x.from, x.to] as [number, number])} yRanges={sb.person ? sb.scenes.filter((x) => x.type !== 'talk' && (x.props?.person ?? 'split') === 'split').map((x) => [x.from, x.to, 1192] as [number, number, number]) : []} />
       <Sequence from={ctaFrom} durationInFrames={Math.max(1, durationInFrames - ctaFrom)} layout="none">
         <AbsoluteFill>
           <Camera dur={durationInFrames - ctaFrom} screen="project" shots={[{at: 0, focus: 'all', width: 900}]} dimAll={0.7} cy={830} clip={false} />

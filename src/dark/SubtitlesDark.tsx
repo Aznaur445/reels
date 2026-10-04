@@ -7,7 +7,7 @@ import {D, HEAD} from './theme';
 const DEFAULT_ACCENT = /^(срок|просроч|красн|гип|график|циклограм|excel|telegram|стройконтрол|отч[её]т|этап|чат|почт|одном|бесплатн)/i;
 
 /** Субтитры как в референсе: одна-две строки белым жирным, ключевые слова оранжевые. */
-export const SubtitlesDark: React.FC<{words: Word[]; hideFrom?: number; accent?: string[]; y?: number; wordRanges?: [number, number][]}> = ({words, hideFrom = Infinity, accent, y = 1395, wordRanges = []}) => {
+export const SubtitlesDark: React.FC<{words: Word[]; hideFrom?: number; accent?: string[]; y?: number; wordRanges?: [number, number][]; yRanges?: [number, number, number][]}> = ({words, hideFrom = Infinity, accent, y: y0 = 1395, wordRanges = [], yRanges = []}) => {
   const frame = useCurrentFrame();
   const {fps} = useVideoConfig();
   const t = frame / fps;
@@ -15,6 +15,7 @@ export const SubtitlesDark: React.FC<{words: Word[]; hideFrom?: number; accent?:
   const re = useMemo(() => (accent?.length ? new RegExp(`^(${accent.join('|')})`, 'i') : DEFAULT_ACCENT), [accent]);
   if (t >= hideFrom) return null;
   // В 3D-сценах — по одному слову по центру, как во втором референсе
+  const y = yRanges.find(([a, b]) => t >= a && t < b)?.[2] ?? y0;
   if (wordRanges.some(([a, b]) => t >= a && t < b)) {
     const i = words.findIndex((w, k) => t >= w.start - 0.05 && t < (words[k + 1]?.start ?? w.end + 0.4) - 0.05);
     if (i < 0) return null;
