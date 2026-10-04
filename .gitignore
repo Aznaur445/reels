@@ -7,3 +7,4 @@ node_modules/
 .cache/
 __pycache__/
 videos/*/tmp/
+scripts/models/rvm_*.onnx
