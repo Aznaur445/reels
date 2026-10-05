@@ -154,10 +154,10 @@ const Rich: React.FC<{text: string; t: number; at: number; stagger?: number; box
 };
 
 // ── Заголовок сцены ───────────────────────────────────────────────────
-export const GHead: React.FC<{dur: number; title: string; sub?: string; size?: number}> = ({title, sub, size = 80}) => {
+export const GHead: React.FC<{dur: number; title: string; sub?: string; size?: number; top?: number}> = ({title, sub, size = 80, top = 350}) => {
   const {t} = useT();
   return (
-    <div style={{position: 'absolute', top: 350, left: 60, width: 900, fontFamily: HEAD, color: G.white, textShadow: '0 6px 30px rgba(0,0,0,0.6)'}}>
+    <div style={{position: 'absolute', top, left: 60, width: 900, fontFamily: HEAD, color: G.white, textShadow: '0 6px 30px rgba(0,0,0,0.6)'}}>
       <div style={{fontSize: size, fontWeight: 900, lineHeight: 1.04, textTransform: 'uppercase', letterSpacing: -1}}>
         <Rich text={title} t={t} at={0.05} />
       </div>
@@ -435,6 +435,7 @@ export const ReelGlass: React.FC<{sb: Storyboard}> = ({sb}) => {
     <AbsoluteFill style={{color: G.white, fontFamily: SANS}}>
       <GlassBg bgs={sb.bgs ?? [{src: 'bg/scene1.jpg', from: 0}]} />
       <PersonLayer sb={sb} layer="front" />
+      <AbsoluteFill style={sb.person ? undefined : {transform: 'translateY(230px) scale(1.06)', transformOrigin: '50% 30%'}}>
       {sb.scenes.map((s, i) => {
         const Comp = SCENES[s.type];
         const from = fr(s.from);
@@ -459,15 +460,16 @@ export const ReelGlass: React.FC<{sb: Storyboard}> = ({sb}) => {
           </Sequence>
         ) : null;
       })}
+      </AbsoluteFill>
       <Sequence from={ctaFrom} durationInFrames={Math.max(1, durationInFrames - ctaFrom)} layout="none">
-        <AbsoluteFill>
+        <AbsoluteFill style={sb.person ? undefined : {transform: 'translateY(230px) scale(1.06)', transformOrigin: '50% 30%'}}>
           <GFinal dur={durationInFrames - ctaFrom} title="*Стройконтроль*" {...((sb.cta as unknown as {final?: object}).final ?? {})} keyword={sb.cta.spoken ? sb.cta.keyword : undefined} />
         </AbsoluteFill>
       </Sequence>
       {sb.chapters ? <Chapters chapters={sb.chapters} end={sb.duration} /> : null}
       <Blob />
       <GlassSubs words={sb.words} hideFrom={sb.cta.spoken ? 1e9 : sb.cta.from} accent={sb.accentWords} yRanges={[...split, [sb.cta.from, 1e9, 1180]]} y0={1450} />
-      <Audio src={staticFile(sb.voice)} />
+      {sb.voice ? <Audio src={staticFile(sb.voice)} /> : null}
       {sb.music ? <Audio src={staticFile(sb.music.src)} volume={(f) => vol[f] ?? 0} loop /> : null}
     </AbsoluteFill>
   );

@@ -1,0 +1,123 @@
+{
+ "id": "2026-10-05-text-06",
+ "title": "Где документы по проекту",
+ "style": "glass",
+ "fps": 30,
+ "voice": "",
+ "voiceDuration": 0,
+ "music": {
+  "src": "music/podlozhka.mp3",
+  "underVoiceDb": -14,
+  "openDb": -12
+ },
+ "words": [],
+ "kinetic": [],
+ "locked": true,
+ "scenes": [
+  {
+   "type": "talk",
+   "from": 0,
+   "to": 2.4,
+   "note": "Хук: вопрос крупно",
+   "props": {}
+  },
+  {
+   "type": "gChips",
+   "from": 2.4,
+   "to": 8.0,
+   "note": "Где обычно",
+   "props": {
+    "items": [
+     "В почте",
+     "В мессенджере",
+     "На флешке",
+     "«У Сергея спроси»"
+    ],
+    "at": [
+     0.2,
+     1.1,
+     2.0,
+     2.9
+    ]
+   }
+  },
+  {
+   "type": "gCheck",
+   "from": 8.0,
+   "to": 15,
+   "note": "Всё привязано к проекту",
+   "props": {
+    "title": "В *Стройконтроле*:",
+    "items": [
+     {
+      "icon": "doc",
+      "key": "Документы",
+      "rest": "в проекте и задаче"
+     },
+     {
+      "icon": "phone",
+      "key": "Чаты",
+      "rest": "по проекту"
+     },
+     {
+      "icon": "bell",
+      "key": "Вопросы",
+      "rest": "с ответами"
+     }
+    ],
+    "at": [
+     0.3,
+     1.4,
+     2.5
+    ]
+   }
+  }
+ ],
+ "overlays": [
+  {
+   "type": "gHead",
+   "from": 0,
+   "to": 2.4,
+   "props": {
+    "title": "Где *документы*",
+    "sub": "по проекту?",
+    "size": 100,
+    "top": 640
+   }
+  },
+  {
+   "type": "gHead",
+   "from": 2.4,
+   "to": 8.0,
+   "props": {
+    "title": "Обычно —"
+   }
+  }
+ ],
+ "cta": {
+  "keyword": "",
+  "spoken": false,
+  "from": 15,
+  "duration": 4.0,
+  "lead": "",
+  "tail": "",
+  "final": {
+   "kicker": "Сервис для проектных бюро",
+   "button": "Открыть демо"
+  }
+ },
+ "duration": 19.0,
+ "cover": {
+  "title": "Где *документы*"
+ },
+ "bgs": [
+  {
+   "src": "bg/scene5.jpg",
+   "from": 0
+  },
+  {
+   "src": "bg/scene2.jpg",
+   "from": 2.4
+  }
+ ]
+}

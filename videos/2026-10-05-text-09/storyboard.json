@@ -1,0 +1,115 @@
+{
+ "id": "2026-10-05-text-09",
+ "title": "Сколько стоит контроль",
+ "style": "glass",
+ "fps": 30,
+ "voice": "",
+ "voiceDuration": 0,
+ "music": {
+  "src": "music/podlozhka.mp3",
+  "underVoiceDb": -14,
+  "openDb": -12
+ },
+ "words": [],
+ "kinetic": [],
+ "locked": true,
+ "scenes": [
+  {
+   "type": "talk",
+   "from": 0,
+   "to": 2.4,
+   "note": "Хук: вопрос крупно",
+   "props": {}
+  },
+  {
+   "type": "gCheck",
+   "from": 2.4,
+   "to": 10.6,
+   "note": "Тарифы",
+   "props": {
+    "title": "*Цены* без звёздочек:",
+    "items": [
+     {
+      "icon": "ruble",
+      "key": "Полная версия",
+      "rest": "5 000 ₽/мес за активный проект"
+     },
+     {
+      "icon": "team",
+      "key": "Биржа",
+      "rest": "бесплатно",
+      "color": "#35c46a"
+     },
+     {
+      "icon": "stages",
+      "key": "Демо",
+      "rest": "для проектных организаций",
+      "color": "#35c46a"
+     }
+    ],
+    "at": [
+     0.3,
+     2.2,
+     4.1
+    ]
+   }
+  },
+  {
+   "type": "gStat",
+   "from": 10.6,
+   "to": 15,
+   "note": "5000",
+   "props": {
+    "value": "5 000 ₽",
+    "text": "в месяц",
+    "sub": "за активный проект",
+    "icons": [
+     "stages",
+     "team",
+     "doc",
+     "bell",
+     "phone",
+     "chart"
+    ]
+   }
+  }
+ ],
+ "overlays": [
+  {
+   "type": "gHead",
+   "from": 0,
+   "to": 2.4,
+   "props": {
+    "title": "Сколько стоит *контроль*?",
+    "size": 100,
+    "top": 640
+   }
+  }
+ ],
+ "cta": {
+  "keyword": "",
+  "spoken": false,
+  "from": 15,
+  "duration": 4.0,
+  "lead": "",
+  "tail": "",
+  "final": {
+   "kicker": "Сервис для проектных бюро",
+   "button": "Открыть демо"
+  }
+ },
+ "duration": 19.0,
+ "cover": {
+  "title": "Сколько стоит *контроль*?"
+ },
+ "bgs": [
+  {
+   "src": "bg/scene3.jpg",
+   "from": 0
+  },
+  {
+   "src": "bg/scene5.jpg",
+   "from": 2.4
+  }
+ ]
+}

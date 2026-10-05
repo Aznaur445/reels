@@ -1,0 +1,126 @@
+{
+ "id": "2026-10-05-text-07",
+ "title": "Каждый видит своё",
+ "style": "glass",
+ "fps": 30,
+ "voice": "",
+ "voiceDuration": 0,
+ "music": {
+  "src": "music/podlozhka.mp3",
+  "underVoiceDb": -14,
+  "openDb": -12
+ },
+ "words": [],
+ "kinetic": [],
+ "locked": true,
+ "scenes": [
+  {
+   "type": "talk",
+   "from": 0,
+   "to": 2.4,
+   "note": "Хук: вопрос крупно",
+   "props": {}
+  },
+  {
+   "type": "gCheck",
+   "from": 2.4,
+   "to": 10.0,
+   "note": "Роли",
+   "props": {
+    "title": "*Доступ* по ролям:",
+    "items": [
+     {
+      "icon": "user",
+      "key": "ГИП",
+      "rest": "— свои проекты"
+     },
+     {
+      "icon": "team",
+      "key": "Субподрядчик",
+      "rest": "— свои задачи"
+     },
+     {
+      "icon": "stages",
+      "key": "Руководитель",
+      "rest": "— всё бюро"
+     }
+    ],
+    "at": [
+     0.3,
+     2.0,
+     3.7
+    ]
+   }
+  },
+  {
+   "type": "gScreen",
+   "from": 10.0,
+   "to": 15.4,
+   "note": "Сводка по бюро",
+   "props": {
+    "screen": "bureau",
+    "shots": [
+     {
+      "at": 0,
+      "focus": "table",
+      "width": 1050
+     },
+     {
+      "at": 2.2,
+      "focus": "table",
+      "spot": "lateRows",
+      "width": 1050
+     }
+    ]
+   }
+  }
+ ],
+ "overlays": [
+  {
+   "type": "gHead",
+   "from": 0,
+   "to": 2.4,
+   "props": {
+    "title": "Каждый видит *своё*",
+    "size": 100,
+    "top": 640
+   }
+  },
+  {
+   "type": "gHead",
+   "from": 10.0,
+   "to": 15.4,
+   "props": {
+    "title": "А вы — *всё бюро*",
+    "sub": "одним экраном",
+    "size": 62
+   }
+  }
+ ],
+ "cta": {
+  "keyword": "",
+  "spoken": false,
+  "from": 15.4,
+  "duration": 4.0,
+  "lead": "",
+  "tail": "",
+  "final": {
+   "kicker": "Сервис для проектных бюро",
+   "button": "Открыть демо"
+  }
+ },
+ "duration": 19.4,
+ "cover": {
+  "title": "Каждый видит *своё*"
+ },
+ "bgs": [
+  {
+   "src": "bg/scene4.jpg",
+   "from": 0
+  },
+  {
+   "src": "bg/scene1.jpg",
+   "from": 2.4
+  }
+ ]
+}

@@ -1,0 +1,150 @@
+{
+ "id": "2026-10-05-text-03",
+ "title": "Пятница, 18:00",
+ "style": "glass",
+ "fps": 30,
+ "voice": "",
+ "voiceDuration": 0,
+ "music": {
+  "src": "music/podlozhka.mp3",
+  "underVoiceDb": -14,
+  "openDb": -12
+ },
+ "words": [],
+ "kinetic": [],
+ "locked": true,
+ "scenes": [
+  {
+   "type": "talk",
+   "from": 0,
+   "to": 2.8,
+   "note": "Хук: вопрос крупно",
+   "props": {}
+  },
+  {
+   "type": "gChips",
+   "from": 2.8,
+   "to": 7.2,
+   "note": "Варианты ответа",
+   "props": {
+    "items": [
+     "Да",
+     "Нет",
+     "Надо обзвонить ГИПов"
+    ],
+    "at": [
+     0.2,
+     0.8,
+     1.6
+    ]
+   }
+  },
+  {
+   "type": "gProgress",
+   "from": 7.2,
+   "to": 12.6,
+   "note": "Ежедневный отчёт",
+   "props": {
+    "icon": "bell",
+    "title": "Отчёт · 09:00",
+    "label": "бюро: сдано 4 · на проверке 2 · горит 1 ·",
+    "from": 0,
+    "to": 100,
+    "color": "#35c46a"
+   }
+  },
+  {
+   "type": "gCheck",
+   "from": 12.6,
+   "to": 17,
+   "note": "Каналы",
+   "props": {
+    "title": "Куда *приходит*:",
+    "items": [
+     {
+      "icon": "phone",
+      "key": "Telegram",
+      "rest": ""
+     },
+     {
+      "icon": "phone",
+      "key": "MAX",
+      "rest": ""
+     },
+     {
+      "icon": "phone",
+      "key": "VK",
+      "rest": ""
+     },
+     {
+      "icon": "doc",
+      "key": "Почта",
+      "rest": ""
+     }
+    ],
+    "at": [
+     0.2,
+     0.7,
+     1.2,
+     1.7
+    ]
+   }
+  }
+ ],
+ "overlays": [
+  {
+   "type": "gHead",
+   "from": 0,
+   "to": 2.8,
+   "props": {
+    "title": "Пятница, *18:00*",
+    "sub": "Вы знаете статус всех проектов?",
+    "size": 100,
+    "top": 640
+   }
+  },
+  {
+   "type": "gHead",
+   "from": 2.8,
+   "to": 7.2,
+   "props": {
+    "title": "Честно?"
+   }
+  },
+  {
+   "type": "gHead",
+   "from": 7.2,
+   "to": 12.6,
+   "props": {
+    "title": "Отчёт приходит *сам*",
+    "sub": "каждый день"
+   }
+  }
+ ],
+ "cta": {
+  "keyword": "",
+  "spoken": false,
+  "from": 17,
+  "duration": 4.0,
+  "lead": "",
+  "tail": "",
+  "final": {
+   "kicker": "Сервис для проектных бюро",
+   "button": "Открыть демо"
+  }
+ },
+ "duration": 21.0,
+ "cover": {
+  "title": "Пятница, *18:00*"
+ },
+ "bgs": [
+  {
+   "src": "bg/scene2.jpg",
+   "from": 0
+  },
+  {
+   "src": "bg/scene4.jpg",
+   "from": 2.8
+  }
+ ]
+}

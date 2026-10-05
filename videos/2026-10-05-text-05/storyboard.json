@@ -1,0 +1,128 @@
+{
+ "id": "2026-10-05-text-05",
+ "title": "Субподрядчик сдал раздел",
+ "style": "glass",
+ "fps": 30,
+ "voice": "",
+ "voiceDuration": 0,
+ "music": {
+  "src": "music/podlozhka.mp3",
+  "underVoiceDb": -14,
+  "openDb": -12
+ },
+ "words": [],
+ "kinetic": [],
+ "locked": true,
+ "scenes": [
+  {
+   "type": "talk",
+   "from": 0,
+   "to": 2.6,
+   "note": "Хук: вопрос крупно",
+   "props": {}
+  },
+  {
+   "type": "gCheck",
+   "from": 2.6,
+   "to": 10.6,
+   "note": "Путь задачи",
+   "props": {
+    "title": "Путь *задачи*:",
+    "items": [
+     {
+      "icon": "doc",
+      "key": "Сдал",
+      "rest": "на проверку"
+     },
+     {
+      "icon": "user",
+      "key": "ГИП проверяет",
+      "rest": "в задаче"
+     },
+     {
+      "icon": "check",
+      "key": "Принято",
+      "rest": "или возвращено с замечанием"
+     }
+    ],
+    "at": [
+     0.3,
+     2.0,
+     3.7
+    ]
+   }
+  },
+  {
+   "type": "gScreen",
+   "from": 10.6,
+   "to": 16,
+   "note": "Карточка задачи: на проверке → принято",
+   "props": {
+    "screen": "task",
+    "shots": [
+     {
+      "at": 0,
+      "focus": "review",
+      "spot": "review",
+      "width": 1000
+     },
+     {
+      "at": 2.4,
+      "focus": "accept",
+      "spot": "accept",
+      "width": 1000
+     }
+    ]
+   }
+  }
+ ],
+ "overlays": [
+  {
+   "type": "gHead",
+   "from": 0,
+   "to": 2.6,
+   "props": {
+    "title": "Субподрядчик *сдал раздел*",
+    "sub": "что дальше?",
+    "size": 100,
+    "top": 640
+   }
+  },
+  {
+   "type": "gHead",
+   "from": 10.6,
+   "to": 16,
+   "props": {
+    "title": "Всё *в одной задаче*",
+    "sub": "и история остаётся",
+    "size": 62
+   }
+  }
+ ],
+ "cta": {
+  "keyword": "",
+  "spoken": false,
+  "from": 16,
+  "duration": 4.0,
+  "lead": "",
+  "tail": "",
+  "final": {
+   "kicker": "Сервис для проектных бюро",
+   "button": "Открыть демо"
+  }
+ },
+ "duration": 20.0,
+ "cover": {
+  "title": "Субподрядчик *сдал раздел*"
+ },
+ "bgs": [
+  {
+   "src": "bg/scene1.jpg",
+   "from": 0
+  },
+  {
+   "src": "bg/scene3.jpg",
+   "from": 2.6
+  }
+ ]
+}

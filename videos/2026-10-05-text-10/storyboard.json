@@ -1,0 +1,139 @@
+{
+ "id": "2026-10-05-text-10",
+ "title": "Напоминать — не ваша работа",
+ "style": "glass",
+ "fps": 30,
+ "voice": "",
+ "voiceDuration": 0,
+ "music": {
+  "src": "music/podlozhka.mp3",
+  "underVoiceDb": -14,
+  "openDb": -12
+ },
+ "words": [],
+ "kinetic": [],
+ "locked": true,
+ "scenes": [
+  {
+   "type": "talk",
+   "from": 0,
+   "to": 2.6,
+   "note": "Хук: вопрос крупно",
+   "props": {}
+  },
+  {
+   "type": "gChips",
+   "from": 2.6,
+   "to": 7.6,
+   "note": "Как обычно",
+   "props": {
+    "items": [
+     "«Напомни ГИПу»",
+     "«Позвони субподрядчику»",
+     "«Что там с КР?»"
+    ],
+    "at": [
+     0.2,
+     1.2,
+     2.2
+    ],
+    "strike": true
+   }
+  },
+  {
+   "type": "gProgress",
+   "from": 7.6,
+   "to": 12.6,
+   "note": "Напоминание",
+   "props": {
+    "icon": "bell",
+    "title": "Напоминание о сроке",
+    "label": "ЭОМ · схемы щитов — сдать завтра ·",
+    "from": 0,
+    "to": 100,
+    "color": "#3f6bff"
+   }
+  },
+  {
+   "type": "gCheck",
+   "from": 12.6,
+   "to": 16,
+   "note": "Каналы",
+   "props": {
+    "title": "Telegram · MAX · VK · почта",
+    "items": [
+     {
+      "icon": "bell",
+      "key": "Напоминания",
+      "rest": "о сроках"
+     },
+     {
+      "icon": "doc",
+      "key": "Отчёт",
+      "rest": "каждый день"
+     }
+    ],
+    "at": [
+     0.2,
+     1.0
+    ]
+   }
+  }
+ ],
+ "overlays": [
+  {
+   "type": "gHead",
+   "from": 0,
+   "to": 2.6,
+   "props": {
+    "title": "Напоминать о сроках —",
+    "sub": "*не ваша работа*",
+    "size": 100,
+    "top": 640
+   }
+  },
+  {
+   "type": "gHead",
+   "from": 2.6,
+   "to": 7.6,
+   "props": {
+    "title": "Хватит"
+   }
+  },
+  {
+   "type": "gHead",
+   "from": 7.6,
+   "to": 12.6,
+   "props": {
+    "title": "Напоминания",
+    "sub": "приходят [исполнителям сами]"
+   }
+  }
+ ],
+ "cta": {
+  "keyword": "",
+  "spoken": false,
+  "from": 16,
+  "duration": 4.0,
+  "lead": "",
+  "tail": "",
+  "final": {
+   "kicker": "Сервис для проектных бюро",
+   "button": "Открыть демо"
+  }
+ },
+ "duration": 20.0,
+ "cover": {
+  "title": "Напоминать о сроках —"
+ },
+ "bgs": [
+  {
+   "src": "bg/scene5.jpg",
+   "from": 0
+  },
+  {
+   "src": "bg/scene2.jpg",
+   "from": 2.6
+  }
+ ]
+}

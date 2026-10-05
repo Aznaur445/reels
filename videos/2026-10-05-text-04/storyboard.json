@@ -1,0 +1,134 @@
+{
+ "id": "2026-10-05-text-04",
+ "title": "График в Excel",
+ "style": "glass",
+ "fps": 30,
+ "voice": "",
+ "voiceDuration": 0,
+ "music": {
+  "src": "music/podlozhka.mp3",
+  "underVoiceDb": -14,
+  "openDb": -12
+ },
+ "words": [],
+ "kinetic": [],
+ "locked": true,
+ "scenes": [
+  {
+   "type": "talk",
+   "from": 0,
+   "to": 2.4,
+   "note": "Хук: вопрос крупно",
+   "props": {}
+  },
+  {
+   "type": "gCheck",
+   "from": 2.4,
+   "to": 8.6,
+   "note": "Минусы Excel",
+   "props": {
+    "title": "*График_v7_финал*.xlsx",
+    "items": [
+     {
+      "icon": "doc",
+      "key": "Устарел",
+      "rest": "в день отправки",
+      "color": "#ff7a3d",
+      "bad": true
+     },
+     {
+      "icon": "team",
+      "key": "У каждого",
+      "rest": "своя версия",
+      "color": "#ff7a3d",
+      "bad": true
+     },
+     {
+      "icon": "alert",
+      "key": "Просрочку",
+      "rest": "никто не подсветит",
+      "color": "#ff7a3d",
+      "bad": true
+     }
+    ],
+    "at": [
+     0.3,
+     1.8,
+     3.3
+    ]
+   }
+  },
+  {
+   "type": "gScreen",
+   "from": 8.6,
+   "to": 14.6,
+   "note": "Циклограмма собирается из графиков субподрядчиков",
+   "props": {
+    "screen": "project",
+    "shots": [
+     {
+      "at": 0,
+      "focus": "cycloRows",
+      "spot": "cyclo",
+      "width": 1000
+     },
+     {
+      "at": 2.6,
+      "focus": "cycloRows",
+      "spot": "cycloLate",
+      "width": 1050
+     }
+    ]
+   }
+  }
+ ],
+ "overlays": [
+  {
+   "type": "gHead",
+   "from": 0,
+   "to": 2.4,
+   "props": {
+    "title": "График *в Excel*",
+    "sub": "устаревает в день отправки",
+    "size": 100,
+    "top": 640
+   }
+  },
+  {
+   "type": "gHead",
+   "from": 8.6,
+   "to": 14.6,
+   "props": {
+    "title": "*Циклограмма*",
+    "sub": "собирается из графиков субподрядчиков",
+    "size": 62
+   }
+  }
+ ],
+ "cta": {
+  "keyword": "",
+  "spoken": false,
+  "from": 14.6,
+  "duration": 4.0,
+  "lead": "",
+  "tail": "",
+  "final": {
+   "kicker": "Сервис для проектных бюро",
+   "button": "Открыть демо"
+  }
+ },
+ "duration": 18.6,
+ "cover": {
+  "title": "График *в Excel*"
+ },
+ "bgs": [
+  {
+   "src": "bg/scene3.jpg",
+   "from": 0
+  },
+  {
+   "src": "bg/scene5.jpg",
+   "from": 2.4
+  }
+ ]
+}

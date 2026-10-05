@@ -1,0 +1,132 @@
+{
+ "id": "2026-10-05-text-01",
+ "title": "Бюро держится на вас",
+ "style": "glass",
+ "fps": 30,
+ "voice": "",
+ "voiceDuration": 0,
+ "music": {
+  "src": "music/podlozhka.mp3",
+  "underVoiceDb": -14,
+  "openDb": -12
+ },
+ "words": [],
+ "kinetic": [],
+ "locked": true,
+ "scenes": [
+  {
+   "type": "talk",
+   "from": 0,
+   "to": 2.6,
+   "note": "Хук: вопрос крупно",
+   "props": {}
+  },
+  {
+   "type": "gCheck",
+   "from": 2.6,
+   "to": 11,
+   "note": "Три признака",
+   "props": {
+    "title": "Если *узнали себя* —",
+    "items": [
+     {
+      "icon": "bell",
+      "key": "В отпуске",
+      "rest": "проекты встают",
+      "color": "#ff7a3d",
+      "bad": true
+     },
+     {
+      "icon": "phone",
+      "key": "Статус",
+      "rest": "узнаёте звонком",
+      "color": "#ff7a3d",
+      "bad": true
+     },
+     {
+      "icon": "user",
+      "key": "«Всё по плану»",
+      "rest": "— единственный отчёт ГИПа",
+      "color": "#ff7a3d",
+      "bad": true
+     }
+    ],
+    "at": [
+     0.4,
+     2.6,
+     4.8
+    ]
+   }
+  },
+  {
+   "type": "gCheck",
+   "from": 11,
+   "to": 16,
+   "note": "Решение",
+   "props": {
+    "title": "В *Стройконтроле*:",
+    "items": [
+     {
+      "icon": "stages",
+      "key": "Сроки этапов",
+      "rest": "на одной схеме"
+     },
+     {
+      "icon": "alert",
+      "key": "Просрочки",
+      "rest": "подсвечены сразу"
+     },
+     {
+      "icon": "bell",
+      "key": "Отчёт",
+      "rest": "каждый день в Telegram"
+     }
+    ],
+    "at": [
+     0.3,
+     1.3,
+     2.3
+    ]
+   }
+  }
+ ],
+ "overlays": [
+  {
+   "type": "gHead",
+   "from": 0,
+   "to": 2.6,
+   "props": {
+    "title": "Бюро держится *на вас*?",
+    "sub": "3 признака",
+    "size": 100,
+    "top": 640
+   }
+  }
+ ],
+ "cta": {
+  "keyword": "",
+  "spoken": false,
+  "from": 16,
+  "duration": 4.0,
+  "lead": "",
+  "tail": "",
+  "final": {
+   "kicker": "Сервис для проектных бюро",
+   "button": "Открыть демо"
+  }
+ },
+ "duration": 20.0,
+ "cover": {
+  "title": "Бюро держится *на вас*?"
+ },
+ "bgs": [
+  {
+   "src": "bg/scene4.jpg",
+   "from": 0
+  },
+  {
+   "src": "bg/scene1.jpg",
+   "from": 2.6
+  }
+ ]
+}

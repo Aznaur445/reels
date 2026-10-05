@@ -1,0 +1,136 @@
+{
+ "id": "2026-10-05-text-02",
+ "title": "Словарь ГИПа",
+ "style": "glass",
+ "fps": 30,
+ "voice": "",
+ "voiceDuration": 0,
+ "music": {
+  "src": "music/podlozhka.mp3",
+  "underVoiceDb": -14,
+  "openDb": -12
+ },
+ "words": [],
+ "kinetic": [],
+ "locked": true,
+ "scenes": [
+  {
+   "type": "talk",
+   "from": 0,
+   "to": 2.4,
+   "note": "Хук: вопрос крупно",
+   "props": {}
+  },
+  {
+   "type": "gChips",
+   "from": 2.4,
+   "to": 8.4,
+   "note": "Отговорки",
+   "props": {
+    "items": [
+     "«Вот-вот»",
+     "«На днях»",
+     "«Почти готово»",
+     "«Всё по плану»"
+    ],
+    "at": [
+     0.2,
+     1.3,
+     2.4,
+     3.5
+    ]
+   }
+  },
+  {
+   "type": "gStat",
+   "from": 8.4,
+   "to": 11.6,
+   "note": "Перевод",
+   "props": {
+    "value": "=",
+    "text": "[просрочка]",
+    "sub": "о которой вы узнаете последним",
+    "color": "#ff5a4a"
+   }
+  },
+  {
+   "type": "gScreen",
+   "from": 11.6,
+   "to": 17,
+   "note": "Схема этапов: просроченный этап красным",
+   "props": {
+    "screen": "project",
+    "shots": [
+     {
+      "at": 0,
+      "focus": "graph",
+      "width": 1000
+     },
+     {
+      "at": 1.6,
+      "focus": "overdueZone",
+      "spot": "overdue",
+      "width": 1000
+     }
+    ]
+   }
+  }
+ ],
+ "overlays": [
+  {
+   "type": "gHead",
+   "from": 0,
+   "to": 2.4,
+   "props": {
+    "title": "Словарь *ГИПа*",
+    "sub": "перевод на русский",
+    "size": 100,
+    "top": 640
+   }
+  },
+  {
+   "type": "gHead",
+   "from": 2.4,
+   "to": 8.4,
+   "props": {
+    "title": "Говорят:"
+   }
+  },
+  {
+   "type": "gHead",
+   "from": 11.6,
+   "to": 17,
+   "props": {
+    "title": "А на схеме",
+    "sub": "это видно [сразу]",
+    "size": 62
+   }
+  }
+ ],
+ "cta": {
+  "keyword": "",
+  "spoken": false,
+  "from": 17,
+  "duration": 4.0,
+  "lead": "",
+  "tail": "",
+  "final": {
+   "kicker": "Сервис для проектных бюро",
+   "button": "Открыть демо"
+  }
+ },
+ "duration": 21.0,
+ "cover": {
+  "title": "Словарь *ГИПа*"
+ },
+ "bgs": [
+  {
+   "src": "bg/scene2.jpg",
+   "from": 0
+  },
+  {
+   "src": "bg/scene4.jpg",
+   "from": 2.4
+  }
+ ]
+}
