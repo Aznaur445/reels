@@ -4,5 +4,8 @@
     "start": 0.4806,
     "end": 81.001
   },
-  "preset": "natural"
+  "preset": "natural",
+  "textFix": {
+    "целом,": "целом."
+  }
 }

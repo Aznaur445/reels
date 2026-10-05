@@ -26,7 +26,7 @@ export const PersonLayer: React.FC<{sb: Storyboard; layer: 'back' | 'front'}> = 
     const idx = scenes.findIndex((s) => t >= s.from && t < s.to);
     const end = t >= sb.cta.from;
     const cur = idx < 0 ? null : scenes[idx];
-    const tgt: Pose = end ? POSES.hide : cur ? {...POSES[modeOf(cur.type, cur.props)]} : POSES.talk;
+    const tgt: Pose = end ? (sb.cta.spoken ? {...POSES.split} : POSES.hide) : cur ? {...POSES[modeOf(cur.type, cur.props)]} : POSES.talk;
     if (cur?.type === 'talk') {
       tgt.s = (cur.props?.zoom as number) ?? 1;
       tgt.y = (cur.props?.y as number) ?? 0;
