@@ -105,7 +105,7 @@ const SCENES: Record<string, React.FC<any>> = {
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const OVERLAYS: Record<string, React.FC<any>> = {hookTitle: HookTitle, pill: Pill, numberBadge: NumberBadge, stamp: Stamp, flash: Flash, countdown: Countdown};
 
-const useDucking = (words: Word[], total: number, fps: number, under: number, open: number) =>
+export const useDucking = (words: Word[], total: number, fps: number, under: number, open: number) =>
   useMemo(() => {
     const sp = new Array(total).fill(false);
     words.forEach((w, i) => {

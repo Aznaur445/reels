@@ -74,7 +74,7 @@ export type Cta = {
 export type Overlay = {type: 'hookTitle' | 'pill' | 'numberBadge' | 'stamp' | 'flash' | 'countdown'; from: number; to: number; props?: Record<string, unknown>};
 
 export type Storyboard = {
-  style?: 'light' | 'dark'; // dark — монтаж как в референсе (тёмный фон, камера с подсветкой)
+  style?: 'light' | 'dark' | 'glass'; // dark — монтаж как в референсе (тёмный фон, камера с подсветкой)
   overlays?: Overlay[];
   accentWords?: string[]; // начала слов, которые в субтитрах красятся акцентом
   id: string;
@@ -91,4 +91,8 @@ export type Storyboard = {
   cover: {title: string; subtitle?: string; screen?: string};
   segments?: {src: number; dur: number; at: number}[]; // видеоисходник: куски исходника (src, сек) и их место в ролике (at)
   person?: string; // видео человека без фона (VP9 с альфой), путь относительно public/
+  poses?: {talk?: {s: number; y: number}; split?: {s: number; y: number}}; // положение человека (glass)
+  glow?: string; // цвет подсветки за человеком
+  chapters?: {title: string; from: number}[]; // главы сверху (glass)
+  bgs?: {src: string; from: number}[]; // размытые задники (glass)
 };

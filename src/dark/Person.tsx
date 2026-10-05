@@ -22,27 +22,29 @@ export const PersonLayer: React.FC<{sb: Storyboard; layer: 'back' | 'front'}> = 
   const {fps} = useVideoConfig();
   const t = f / fps;
   const scenes = sb.scenes;
+  const P = useMemo(() => ({...POSES, talk: {...POSES.talk, ...(sb.poses?.talk ?? {})}, split: {...POSES.split, ...(sb.poses?.split ?? {})}}), [sb.poses]);
+  const custom = !!sb.poses;
   const pose = useMemo(() => {
     const idx = scenes.findIndex((s) => t >= s.from && t < s.to);
     const end = t >= sb.cta.from;
     const cur = idx < 0 ? null : scenes[idx];
-    const tgt: Pose = end ? (sb.cta.spoken ? {...POSES.split} : POSES.hide) : cur ? {...POSES[modeOf(cur.type, cur.props)]} : POSES.talk;
+    const tgt: Pose = end ? (sb.cta.spoken ? {...P.split} : P.hide) : cur ? {...P[modeOf(cur.type, cur.props)]} : P.talk;
     if (cur?.type === 'talk') {
-      tgt.s = (cur.props?.zoom as number) ?? 1;
-      tgt.y = (cur.props?.y as number) ?? 0;
+      tgt.s = P.talk.s * ((cur.props?.zoom as number) ?? 1);
+      tgt.y = P.talk.y + ((cur.props?.y as number) ?? 0);
     }
     const prev = idx > 0 ? scenes[idx - 1] : null;
-    const from: Pose = prev ? {...POSES[modeOf(prev.type, prev.props)]} : tgt;
+    const from: Pose = prev ? {...P[modeOf(prev.type, prev.props)]} : tgt;
     if (prev?.type === 'talk') {
-      from.s = (prev.props?.zoom as number) ?? 1;
-      from.y = (prev.props?.y as number) ?? 0;
+      from.s = P.talk.s * ((prev.props?.zoom as number) ?? 1);
+      from.y = P.talk.y + ((prev.props?.y as number) ?? 0);
     }
     const start = end ? sb.cta.from : cur?.from ?? 0;
     // talk → talk: резкая смена крупности (джамп-кат), остальное — плавный переход
     const jump = cur?.type === 'talk' && prev?.type === 'talk';
     const k = jump ? 1 : interpolate(t - start, [0, 0.35], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp', easing: Easing.out(Easing.cubic)});
     return {s: from.s + (tgt.s - from.s) * k, y: from.y + (tgt.y - from.y) * k, o: from.o + (tgt.o - from.o) * k, mode: cur ? modeOf(cur.type, cur.props) : 'talk'};
-  }, [t, scenes, sb.cta.from]);
+  }, [t, scenes, sb.cta.from, P]);
 
   if (!sb.person || !sb.segments) return null;
   const talkK = Math.max(0, Math.min(1, (pose.s - 0.5) / 0.5)); // 1 — во весь кадр, 0 — split
@@ -58,10 +60,10 @@ export const PersonLayer: React.FC<{sb: Storyboard; layer: 'back' | 'front'}> = 
       </AbsoluteFill>
     );
   }
-  const glowY = 640 * pose.s + (1 - pose.s) * VH + pose.y;
+  const glowY = custom ? 1920 - VH * pose.s * 0.62 + pose.y : 640 * pose.s + (1 - pose.s) * VH + pose.y;
   return (
     <AbsoluteFill style={{opacity: pose.o, pointerEvents: 'none'}}>
-      <div style={{position: 'absolute', left: 540 - 560, top: glowY - 520, width: 1120, height: 1040, borderRadius: '50%', background: 'radial-gradient(closest-side, rgba(255,90,46,0.30), rgba(79,123,234,0.10) 55%, transparent 75%)', filter: 'blur(10px)'}} />
+      <div style={{position: 'absolute', left: 540 - 560, top: glowY - 520, width: 1120, height: 1040, borderRadius: '50%', background: sb.glow ?? 'radial-gradient(closest-side, rgba(255,90,46,0.30), rgba(79,123,234,0.10) 55%, transparent 75%)', filter: 'blur(10px)'}} />
       <div
         style={{
           position: 'absolute',
@@ -70,7 +72,7 @@ export const PersonLayer: React.FC<{sb: Storyboard; layer: 'back' | 'front'}> = 
           width: VW,
           height: VH,
           transform: `translateY(${pose.y}px) scale(${pose.s})`,
-          transformOrigin: pose.s >= 1 ? '50% 33%' : '50% 100%',
+          transformOrigin: !custom && pose.s >= 1 ? '50% 33%' : '50% 100%',
           filter: 'drop-shadow(0 0 2px rgba(255,255,255,0.25)) drop-shadow(0 30px 60px rgba(0,0,0,0.55))',
         }}
       >
