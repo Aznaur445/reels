@@ -10,7 +10,7 @@ import type {Storyboard, Word} from '../types';
 const BLUE = '#3f5bd8';
 const ease = (t: number, a: number, d = 0.25) => interpolate(t, [a, a + d], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp', easing: Easing.out(Easing.cubic)});
 
-type Src = Storyboard & {video?: string; rawAudio?: boolean; zooms?: {at: number; s: number; x?: number; y?: number}[]};
+type Src = Storyboard & {video?: string; rawAudio?: boolean; box?: {x: number; y: number; w: number; h: number; round?: boolean}; subsY?: number; zooms?: {at: number; s: number; x?: number; y?: number}[]};
 
 const Footage: React.FC<{sb: Src}> = ({sb}) => {
   const f = useCurrentFrame();
@@ -32,7 +32,7 @@ const Footage: React.FC<{sb: Src}> = ({sb}) => {
           const dur = Math.max(1, Math.round(g.dur * fps) + (i < segs.length - 1 ? 1 : sb.rawAudio ? 0 : Math.round(6 * fps)));
           return (
             <Sequence key={i} from={from} durationInFrames={dur} layout="none">
-              <OffthreadVideo src={staticFile(sb.video!)} startFrom={Math.round(g.src * fps)} muted={!sb.rawAudio} style={{position: 'absolute', left: 0, top: -2, width: 1080, height: 1925, objectFit: 'cover'}} />
+              <OffthreadVideo src={staticFile(sb.video!)} startFrom={Math.round(g.src * fps)} muted={!sb.rawAudio} style={sb.box ? {position: 'absolute', left: sb.box.x, top: sb.box.y, width: sb.box.w, height: sb.box.h, objectFit: 'cover', borderRadius: sb.box.round ? '50%' : 0} : {position: 'absolute', left: 0, top: -2, width: 1080, height: 1925, objectFit: 'cover'}} />
             </Sequence>
           );
         })}
@@ -116,7 +116,7 @@ export const ReelScreen: React.FC<{sb: Storyboard}> = ({sb: base}) => {
           </Sequence>
         ) : null;
       })}
-      <Subs words={sb.words} accent={sb.accentWords} />
+      <Subs words={sb.words} accent={sb.accentWords} y={sb.subsY} />
       {sb.cta.keyword ? <Sequence from={ctaFrom} durationInFrames={Math.max(1, durationInFrames - ctaFrom)} layout="none">
         <AbsoluteFill>
           <Label dur={durationInFrames - ctaFrom + 60} text={`Пиши в комментах «${sb.cta.keyword}»`} y={250} accent />
