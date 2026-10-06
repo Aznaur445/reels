@@ -10,7 +10,7 @@ import type {Storyboard, Word} from '../types';
 const BLUE = '#3f5bd8';
 const ease = (t: number, a: number, d = 0.25) => interpolate(t, [a, a + d], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp', easing: Easing.out(Easing.cubic)});
 
-type Src = Storyboard & {video?: string; zooms?: {at: number; s: number; x?: number; y?: number}[]};
+type Src = Storyboard & {video?: string; rawAudio?: boolean; zooms?: {at: number; s: number; x?: number; y?: number}[]};
 
 const Footage: React.FC<{sb: Src}> = ({sb}) => {
   const f = useCurrentFrame();
@@ -26,18 +26,18 @@ const Footage: React.FC<{sb: Src}> = ({sb}) => {
   const segs = sb.segments ?? [];
   return (
     <AbsoluteFill style={{background: '#000', overflow: 'hidden'}}>
-      <AbsoluteFill style={{transform: `scale(${s * (1 + 0.012 * Math.sin(t / 3))})`, transformOrigin: `${x}% ${y}%`}}>
+      <AbsoluteFill style={{transform: sb.rawAudio ? undefined : `scale(${s * (1 + 0.012 * Math.sin(t / 3))})`, transformOrigin: `${x}% ${y}%`}}>
         {segs.map((g, i) => {
           const from = Math.round(g.at * fps);
-          const dur = Math.max(1, Math.round(g.dur * fps) + (i < segs.length - 1 ? 1 : Math.round(6 * fps)));
+          const dur = Math.max(1, Math.round(g.dur * fps) + (i < segs.length - 1 ? 1 : sb.rawAudio ? 0 : Math.round(6 * fps)));
           return (
             <Sequence key={i} from={from} durationInFrames={dur} layout="none">
-              <OffthreadVideo src={staticFile(sb.video!)} startFrom={Math.round(g.src * fps)} muted style={{position: 'absolute', left: 0, top: -2, width: 1080, height: 1925, objectFit: 'cover'}} />
+              <OffthreadVideo src={staticFile(sb.video!)} startFrom={Math.round(g.src * fps)} muted={!sb.rawAudio} style={{position: 'absolute', left: 0, top: -2, width: 1080, height: 1925, objectFit: 'cover'}} />
             </Sequence>
           );
         })}
       </AbsoluteFill>
-      <AbsoluteFill style={{background: 'linear-gradient(180deg, rgba(0,0,0,0.25) 0%, transparent 18%, transparent 55%, rgba(0,0,0,0.55) 100%)'}} />
+      {sb.rawAudio ? null : <AbsoluteFill style={{background: 'linear-gradient(180deg, rgba(0,0,0,0.25) 0%, transparent 18%, transparent 55%, rgba(0,0,0,0.55) 100%)'}} />}
     </AbsoluteFill>
   );
 };
@@ -117,12 +117,12 @@ export const ReelScreen: React.FC<{sb: Storyboard}> = ({sb: base}) => {
         ) : null;
       })}
       <Subs words={sb.words} accent={sb.accentWords} />
-      <Sequence from={ctaFrom} durationInFrames={Math.max(1, durationInFrames - ctaFrom)} layout="none">
+      {sb.cta.keyword ? <Sequence from={ctaFrom} durationInFrames={Math.max(1, durationInFrames - ctaFrom)} layout="none">
         <AbsoluteFill>
           <Label dur={durationInFrames - ctaFrom + 60} text={`Пиши в комментах «${sb.cta.keyword}»`} y={250} accent />
         </AbsoluteFill>
-      </Sequence>
-      <Audio src={staticFile(sb.voice)} />
+      </Sequence> : null}
+      {sb.rawAudio ? null : <Audio src={staticFile(sb.voice)} />}
       {sb.music ? <Audio src={staticFile(sb.music.src)} volume={(f) => vol[f] ?? 0} loop /> : null}
     </AbsoluteFill>
   );
