@@ -4,6 +4,7 @@ import {Cover, CoverDark} from './Cover';
 import {Reel} from './Reel';
 import {ReelDark} from './dark/ReelDark';
 import {ReelGlass} from './glass/ReelGlass';
+import {ReelScreen} from './screen/ReelScreen';
 import {SHOWCASE_FRAMES, Showcase} from './Showcase';
 import {GALLERY3D_FRAMES, Gallery3D} from './three/Gallery';
 import {REALGALLERY_FRAMES, RealGallery} from './three/RealGallery';
@@ -24,14 +25,14 @@ export const Root: React.FC = () => (
       <React.Fragment key={sb.id}>
         <Composition
           id={sb.id}
-          component={sb.style === 'glass' ? ReelGlass : sb.style === 'dark' ? ReelDark : Reel}
+          component={sb.style === 'screen' ? ReelScreen : sb.style === 'glass' ? ReelGlass : sb.style === 'dark' ? ReelDark : Reel}
           durationInFrames={Math.ceil(sb.duration * FPS)}
           fps={FPS}
           width={W}
           height={H}
           defaultProps={{sb}}
         />
-        <Still id={`${sb.id}-cover`} component={sb.style === 'dark' || sb.style === 'glass' ? CoverDark : Cover} width={W} height={H} defaultProps={{sb}} />
+        <Still id={`${sb.id}-cover`} component={sb.style === 'dark' || sb.style === 'glass' || sb.style === 'screen' ? CoverDark : Cover} width={W} height={H} defaultProps={{sb}} />
       </React.Fragment>
     ))}
     <Composition id="realgallery" component={RealGallery} durationInFrames={REALGALLERY_FRAMES} fps={FPS} width={W} height={H} />

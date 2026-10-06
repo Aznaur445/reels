@@ -120,7 +120,7 @@ for (let i = words.length - 1; i > 0; i--) {
   if (/^[–—-]+$/.test(words[i].text)) {
     words[i - 1] = {...words[i - 1], text: `${words[i - 1].text} —`, end: words[i].end};
     words.splice(i, 1);
-  } else if (/^-[а-яё]/i.test(words[i].text) && /[а-яё]$/i.test(words[i - 1].text)) {
+  } else if (/^-[а-яё]/i.test(words[i].text) && /[a-zа-яё0-9]$/i.test(words[i - 1].text)) {
     // «что -то», «вот -вот», «из -за» → одно слово через дефис
     words[i - 1] = {...words[i - 1], text: `${words[i - 1].text}${words[i].text}`, end: words[i].end};
     words.splice(i, 1);

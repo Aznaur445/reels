@@ -71,10 +71,10 @@ export type Cta = {
   tail?: string;
 };
 
-export type Overlay = {type: 'hookTitle' | 'pill' | 'numberBadge' | 'stamp' | 'flash' | 'countdown'; from: number; to: number; props?: Record<string, unknown>};
+export type Overlay = {type: 'hookTitle' | 'pill' | 'numberBadge' | 'stamp' | 'flash' | 'countdown' | 'label' | 'gHead'; from: number; to: number; props?: Record<string, unknown>};
 
 export type Storyboard = {
-  style?: 'light' | 'dark' | 'glass'; // dark — монтаж как в референсе (тёмный фон, камера с подсветкой)
+  style?: 'light' | 'dark' | 'glass' | 'screen'; // dark — монтаж как в референсе (тёмный фон, камера с подсветкой)
   overlays?: Overlay[];
   accentWords?: string[]; // начала слов, которые в субтитрах красятся акцентом
   id: string;
